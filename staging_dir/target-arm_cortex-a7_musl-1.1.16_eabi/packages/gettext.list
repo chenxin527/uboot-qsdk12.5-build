@@ -1,0 +1,17 @@
+./
+./usr
+./usr/lib
+./usr/lib/libintl-stub
+./usr/lib/libintl-stub/include
+./usr/lib/libintl-stub/include/libintl.h
+./usr/share
+./usr/share/aclocal
+./usr/share/aclocal/intldir.m4
+./usr/share/aclocal/intl.m4
+./usr/share/aclocal/nls.m4
+./usr/share/aclocal/codeset.m4
+./usr/share/aclocal/lcmessage.m4
+./usr/share/aclocal/gettext.m4
+./usr/share/aclocal/intlmacosx.m4
+./usr/share/aclocal/po.m4
+./host

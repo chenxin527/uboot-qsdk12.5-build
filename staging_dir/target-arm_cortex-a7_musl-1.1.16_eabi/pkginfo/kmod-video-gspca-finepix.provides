@@ -1,0 +1,8 @@
+gspca_finepix.ko
+gspca_main.ko
+input-core.ko
+nls_base.ko
+usb-common.ko
+usbcore.ko
+v4l2-common.ko
+videodev.ko

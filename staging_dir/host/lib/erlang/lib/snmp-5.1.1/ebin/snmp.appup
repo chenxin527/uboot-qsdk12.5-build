@@ -1,0 +1,62 @@
+%%
+%% %CopyrightBegin%
+%% 
+%% Copyright Ericsson AB 1999-2014. All Rights Reserved.
+%% 
+%% The contents of this file are subject to the Erlang Public License,
+%% Version 1.1, (the "License"); you may not use this file except in
+%% compliance with the License. You should have received a copy of the
+%% Erlang Public License along with this software. If not, it can be
+%% retrieved online at http://www.erlang.org/.
+%% 
+%% Software distributed under the License is distributed on an "AS IS"
+%% basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
+%% the License for the specific language governing rights and limitations
+%% under the License.
+%% 
+%% %CopyrightEnd%
+%%
+
+
+{"5.1.1",
+
+%% ----- U p g r a d e -------------------------------------------------------
+
+%% Instruction examples: 
+%% {restart_application, snmp}
+%% {load_module, snmp_pdus, soft_purge, soft_purge, []}
+%% {update, snmpa_local_db, soft, soft_purge, soft_purge, []}
+%% {add_module,  snmpm_net_if_mt}
+ [
+  {"5.1", [ % Only compiler changes
+  ]},
+  {"5.0", [{restart_application, snmp}]},
+  {"4.25.1", [{restart_application, snmp}]},
+  {"4.25.0.1", [{restart_application, snmp}]},
+  {"4.25.0.0.1", [{restart_application, snmp}]},
+  {"4.25",   [{restart_application, snmp}]}, 
+  {"4.24.2", [{restart_application, snmp}]}, 
+  {"4.24.1", [{restart_application, snmp}]}, 
+  {"4.24",   [{restart_application, snmp}]}
+ ], 
+
+%% ------D o w n g r a d e ---------------------------------------------------
+
+%% Instruction examples: 
+%% {remove, {snmpm_net_if_mt, soft_purge, soft_purge}}
+
+ [
+  {"5.1", [ % Only compiler changes
+  ]},
+  {"5.0", [{restart_application, snmp}]},
+  {"4.25.1", [{restart_application, snmp}]},
+  {"4.25.0.1", [{restart_application, snmp}]},
+  {"4.25.0.0.1", [{restart_application, snmp}]},
+  {"4.25",   [{restart_application, snmp}]}, 
+  {"4.24.2", [{restart_application, snmp}]}, 
+  {"4.24.1", [{restart_application, snmp}]}, 
+  {"4.24",   [{restart_application, snmp}]}
+ ]
+
+}.
+

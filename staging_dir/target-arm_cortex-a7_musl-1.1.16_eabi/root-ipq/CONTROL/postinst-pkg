@@ -1,0 +1,4 @@
+#!/bin/sh
+[ -z "$IPKG_INSTROOT" ] || exit 0
+. /lib/functions.sh
+insert_modules 50-cryptodev

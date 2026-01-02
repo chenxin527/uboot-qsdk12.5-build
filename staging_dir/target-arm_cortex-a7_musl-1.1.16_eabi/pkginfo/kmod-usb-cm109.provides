@@ -1,0 +1,6 @@
+cm109.ko
+evdev.ko
+input-core.ko
+nls_base.ko
+usb-common.ko
+usbcore.ko

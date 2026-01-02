@@ -1,0 +1,4 @@
+libata.ko
+pata_pdc202xx_old.ko
+scsi_mod.ko
+sd_mod.ko

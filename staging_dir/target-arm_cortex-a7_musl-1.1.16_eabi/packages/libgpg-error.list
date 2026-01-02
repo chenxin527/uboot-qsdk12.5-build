@@ -1,0 +1,17 @@
+./
+./usr
+./usr/include
+./usr/include/gpg-error.h
+./usr/lib
+./usr/lib/libgpg-error.so.0
+./usr/lib/libgpg-error.so.0.10.0
+./usr/lib/libgpg-error.so
+./usr/lib/libgpg-error.a
+./usr/share
+./usr/share/aclocal
+./usr/share/aclocal/gpg-error.m4
+./usr/bin
+./usr/bin/gpg-error-config
+./host
+./host/bin
+./host/bin/gpg-error-config

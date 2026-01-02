@@ -1,0 +1,132 @@
+Metadata-Version: 1.1
+Name: attrs
+Version: 15.2.0
+Summary: Attributes without boilerplate.
+Home-page: https://attrs.readthedocs.org/
+Author: Hynek Schlawack
+Author-email: hs@ox.cx
+License: MIT
+Description: ======================================
+        attrs: Attributes without boilerplate.
+        ======================================
+        
+        .. image:: https://travis-ci.org/hynek/attrs.svg
+           :target: https://travis-ci.org/hynek/attrs
+           :alt: CI status
+        
+        .. image:: https://codecov.io/github/hynek/attrs/coverage.svg?branch=master
+           :target: https://codecov.io/github/hynek/attrs?branch=master
+           :alt: Coverage
+        
+        .. teaser-begin
+        
+        ``attrs`` is an `MIT <http://choosealicense.com/licenses/mit/>`_-licensed Python package with class decorators that ease the chores of implementing the most common attribute-related object protocols:
+        
+        .. code-block:: pycon
+        
+           >>> import attr
+           >>> @attr.s
+           ... class C(object):
+           ...     x = attr.ib(default=42)
+           ...     y = attr.ib(default=attr.Factory(list))
+           >>> i = C(x=1, y=2)
+           >>> i
+           C(x=1, y=2)
+           >>> i == C(1, 2)
+           True
+           >>> i != C(2, 1)
+           True
+           >>> attr.asdict(i)
+           {'y': 2, 'x': 1}
+           >>> C()
+           C(x=42, y=[])
+           >>> C2 = attr.make_class("C2", ["a", "b"])
+           >>> C2("foo", "bar")
+           C2(a='foo', b='bar')
+        
+        (If you don’t like the playful ``attr.s`` and ``attr.ib``, you can also use their no-nonsense aliases ``attr.attributes`` and ``attr.attr``).
+        
+        You just specify the attributes to work with and ``attrs`` gives you:
+        
+        - a nice human-readable ``__repr__``,
+        - a complete set of comparison methods,
+        - an initializer,
+        - and much more
+        
+        *without* writing dull boilerplate code again and again.
+        
+        This gives you the power to use actual classes with actual types in your code instead of confusing ``tuple``\ s or confusingly behaving ``namedtuple``\ s.
+        
+        So put down that type-less data structures and welcome some class into your life!
+        
+        .. note::
+           I wrote an `explanation <https://attrs.readthedocs.org/en/latest/why.html#characteristic>`_ on why I forked my own ``characteristic``.
+           It's not dead but ``attrs`` will have more new features.
+        
+        ``attrs``\ ’s documentation lives at `Read the Docs <https://attrs.readthedocs.org/>`_, the code on `GitHub <https://github.com/hynek/attrs>`_.
+        It’s rigorously tested on Python 2.6, 2.7, 3.3+, and PyPy.
+        
+        
+        Changelog
+        =========
+        
+        Versions are year-based with a strict backwards compatibility policy.
+        The third digit is only for regressions.
+        
+        
+        15.2.0 (2015-12-08)
+        -------------------
+        
+        
+        Changes:
+        ^^^^^^^^
+        
+        - Add a ``convert`` argument to ``attr.ib``, which allows specifying a function to run on arguments.
+          This allows for simple type conversions, e.g. with ``attr.ib(convert=int)``.
+          `[26] <https://github.com/hynek/attrs/issues/26>`_
+        - Speed up object creation when attribute validators are used.
+          `[28] <https://github.com/hynek/attrs/issues/28>`_
+        
+        
+        15.1.0 (2015-08-20)
+        -------------------
+        
+        
+        Changes:
+        ^^^^^^^^
+        
+        - Add ``attr.validators.optional`` that wraps other validators allowing attributes to be ``None``.
+          `[16] <https://github.com/hynek/attrs/issues/16>`_
+        - Fix multi-level inheritance.
+          `[24] <https://github.com/hynek/attrs/issues/24>`_
+        - Fix ``__repr__`` to work for non-redecorated subclasses.
+          `[20] <https://github.com/hynek/attrs/issues/20>`_
+        
+        
+        15.0.0 (2015-04-15)
+        -------------------
+        
+        
+        Changes:
+        ^^^^^^^^
+        
+        Initial release.
+        
+Keywords: class,attribute,boilerplate
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Natural Language :: English
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

@@ -1,0 +1,11 @@
+./
+./usr
+./usr/include
+./usr/include/uci_blob.h
+./usr/include/uci_config.h
+./usr/include/ucimap.h
+./usr/include/uci.h
+./usr/lib
+./usr/lib/libucimap.a
+./usr/lib/libuci.so
+./host

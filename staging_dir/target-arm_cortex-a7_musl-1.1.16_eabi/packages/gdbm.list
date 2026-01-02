@@ -1,0 +1,10 @@
+./
+./usr
+./usr/include
+./usr/include/gdbm.h
+./usr/lib
+./usr/lib/libgdbm.so.4
+./usr/lib/libgdbm.a
+./usr/lib/libgdbm.so.4.0.0
+./usr/lib/libgdbm.so
+./host

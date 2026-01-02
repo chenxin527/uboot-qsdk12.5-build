@@ -1,0 +1,5 @@
+nls_base.ko
+phy-qca-baldur.ko
+phy-qca-uniphy.ko
+usb-common.ko
+usbcore.ko

@@ -1,0 +1,8 @@
+evdev.ko
+hid-generic.ko
+hid.ko
+input-core.ko
+nls_base.ko
+usb-common.ko
+usbcore.ko
+usbhid.ko

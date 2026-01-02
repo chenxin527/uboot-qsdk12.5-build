@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Methods - Vala Reference Manual</title>
+    <link rel="stylesheet" type="text/css" href="default.css"/>
+  </head>
+  <body>
+    <div class="header">
+      <a href="index.html">Vala Reference Manual</a>
+    </div>
+    <h2>Methods</h2>
+    <h3>Method declarations<a id="declaration"> </a></h3>
+    <p>Methods may be declared in namespaces, classes, interfaces, structs, enums, and error domains</p>
+    <blockquote>
+method-declaration:
+	[ access-modifier ] [ member-modifers ] return-type qualified-identifier ( [ parameter-list ] ) method-contract [ <span class="literal">throws</span> error-list ] <span class="literal">{</span> statement-list <span class="literal">}</span>
+
+member-modifiers:
+	member-modifier [ member-modifiers ]
+
+member-modifier:
+	<span class="literal">abstract</span>
+	<span class="literal">class</span>
+	<span class="literal">extern</span>
+	<span class="literal">inline</span>
+	<span class="literal">override</span>
+	<span class="literal">static</span>
+	<span class="literal">virtual</span>
+
+return-type:
+	type
+	<span class="literal">void</span>
+
+parameter-list:
+	[ parameter-direction ] type identifier [ <span class="literal">,</span> parameter-list ]
+
+parameter-direction:
+	<span class="literal">ref</span>
+	<span class="literal">out</span>
+
+method-contract:
+	[ <span class="literal">requires</span> <span class="literal">(</span> expression <span class="literal">)</span> ] [ <span class="literal">ensures</span> <span class="literal">(</span> expression <span class="literal">)</span> ]
+
+error-list:
+	error-type [ <span class="literal">,</span> error-list ]
+
+</blockquote>
+  </body>
+</html>

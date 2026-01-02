@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Structs - Vala Reference Manual</title>
+    <link rel="stylesheet" type="text/css" href="default.css"/>
+  </head>
+  <body>
+    <div class="header">
+      <a href="index.html">Vala Reference Manual</a>
+    </div>
+    <h2>Structs</h2>
+    <p>A struct is a data type that can contain fields, constants, and methods.</p>
+    <h3>Struct declarations<a id="declaration"> </a></h3>
+    <p>The simplest struct declaration looks like this:</p>
+    <pre>
+struct StructName {
+	&lt;struct-member&gt;
+}</pre>
+    <p>You may optionally specify an accessibility modifier. Structs support <code>public</code> and <code>private</code> accessibility and default to private if you don't specify one. Public structs may be accessed from outside the library or application they are defined in.</p>
+    <pre>
+public struct StructName {
+	&lt;struct-member&gt;
+}</pre>
+    <p>You may optionally prefix the struct name with a namespace name. This places the struct in the specified namespace without the need for a separate namespace declaration.</p>
+    <pre>
+struct NamespaceName.StructName {
+	&lt;struct-member&gt;
+}</pre>
+    <h3>Fields<a id="fields"> </a></h3>
+    <p>Documentation</p>
+    <h3>Methods<a id="methods"> </a></h3>
+    <p>Documentation</p>
+    <h3>Properties<a id="properties"> </a></h3>
+    <p>Documentation</p>
+  </body>
+</html>

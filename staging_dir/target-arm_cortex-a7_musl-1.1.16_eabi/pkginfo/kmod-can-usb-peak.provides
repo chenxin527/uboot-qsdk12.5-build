@@ -1,0 +1,6 @@
+can-dev.ko
+can.ko
+nls_base.ko
+peak_usb.ko
+usb-common.ko
+usbcore.ko

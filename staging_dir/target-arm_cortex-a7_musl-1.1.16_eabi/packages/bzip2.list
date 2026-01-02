@@ -1,0 +1,9 @@
+./
+./usr
+./usr/include
+./usr/include/bzlib.h
+./usr/lib
+./usr/lib/libbz2.so.1.0
+./usr/lib/libbz2.so
+./usr/lib/libbz2.so.1.0.6
+./host

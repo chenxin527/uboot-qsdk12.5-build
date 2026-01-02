@@ -1,0 +1,5 @@
+nls_base.ko
+sierra.ko
+usb-common.ko
+usbcore.ko
+usbserial.ko

@@ -1,0 +1,6 @@
+crc-ccitt.ko
+ppp_async.ko
+ppp_generic.ko
+pppoe.ko
+pppox.ko
+slhc.ko

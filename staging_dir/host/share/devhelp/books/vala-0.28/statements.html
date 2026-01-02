@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Statements - Vala Reference Manual</title>
+    <link rel="stylesheet" type="text/css" href="default.css"/>
+  </head>
+  <body>
+    <div class="header">
+      <a href="index.html">Vala Reference Manual</a>
+    </div>
+    <h2>Statements</h2>
+    <h3>Selection statements<a id="selection"> </a></h3>
+    <p>The if statement selects a statement for execution based on the value of a boolean expression.</p>
+    <blockquote>
+if-statement:
+	<span class="literal">if (</span> boolean-expression <span class="literal">)</span> embedded-statement
+	<span class="literal">if (</span> boolean-expression <span class="literal">)</span> embedded-statement <span class="literal">else</span> embedded-statement
+		</blockquote>
+    <h3>Iteration statements<a id="iteration"> </a></h3>
+    <p>The while statement conditionally executes an embedded statement zero or more times.</p>
+    <blockquote>
+while-statement:
+	<span class="literal">while (</span> boolean-expression <span class="literal">)</span> embedded-statement
+		</blockquote>
+    <p>The do statement conditionally executes an embedded statement one or more times.</p>
+    <blockquote>
+do-statement:
+	<span class="literal">do</span> embedded-statement <span class="literal">while (</span> boolean-expression <span class="literal">) ;</span>
+		</blockquote>
+    <p>The for statement evaluates a sequence of initialization expressions and then, while a condition is true, repeatedly executes an embedded statement and evaluates a sequence of iteration expressions.</p>
+    <blockquote>
+for-statement:
+	<span class="literal">for (</span> [for-initializer] <span class="literal">;</span> [for-condition] <span class="literal">;</span> [for-iterator] <span class="literal">)</span> embedded-statement
+
+for-initializer:
+	local-variable-declaration
+	statement-expression-list
+
+for-condition:
+	boolean-expression
+
+for-iterator:
+	statement-expression-list
+
+statement-expression-list:
+	statement-expression
+	statement-expression-list <span class="literal">,</span> statement-expression
+		</blockquote>
+    <p>Within the embedded statement of a for statement, a break statement can be used to transfer control to the end point of the for statement (thus ending iteration of the embedded statement), and a continue statement can be used to transfer control to the end point of the embedded statement (thus executing another iteration of the for statement).</p>
+    <p>The foreach statement enumerates the elements of a collection, executing an embedded statement for each element of the collection.</p>
+    <blockquote>
+foreach-statement:
+	<span class="literal">foreach (</span> type identifier <span class="literal">in</span> expression <span class="literal">)</span> embedded-statement
+		</blockquote>
+    <h3>Jump statements<a id="jump"> </a></h3>
+    <p>The break statement exits the nearest enclosing switch, while, do, for, or foreach statement.</p>
+    <blockquote>
+break-statement:
+	<span class="literal">break ;</span>
+		</blockquote>
+    <p>The continue statement starts a new iterataion of the nearest enclosing while, do, for, or foreach statement.</p>
+    <blockquote>
+continue-statement:
+	<span class="literal">continue ;</span>
+		</blockquote>
+    <p>When multiple while, do, for, or foreach statements are nested within each other, a continue statement applies only to the innermost statement. If a continue statement is not eclosed by a while, do, for, or foreach statement, a compile-time error occurs.</p>
+    <p>The return statement returns control to the caller of the function member in which the return statement appears.</p>
+    <blockquote>
+return-statement:
+	<span class="literal">return</span> [expression] <span class="literal">;</span>
+		</blockquote>
+    <p>The throw statement throws an exception.</p>
+    <blockquote>
+throw-statement:
+	<span class="literal">throw</span> expression <span class="literal">;</span>
+		</blockquote>
+    <h3>Try statement<a id="try"> </a></h3>
+    <p>The try statement provides a mechanism for catching exceptions that occur during execution of a block. Furthermore, the try statement provides the ability to specify a block of code that is always executed when control leaves the try statement.</p>
+    <blockquote>
+try-statement:
+	<span class="literal">try</span> block catch-clauses
+	<span class="literal">try</span> block [catch-clauses] finally-clause
+
+catch-clauses:
+	specific-catch-clause
+	[specific-catch-clauses] general-catch-clause
+
+specific-catch-clause:
+	specific-catch-clause
+	specific-catch-clauses specific-catch-clause
+
+specific-catch-clause:
+	<span class="literal">catch (</span> error-type identifier <span class="literal">)</span> block
+
+general-catch-clause:
+	<span class="literal">catch</span> block
+
+finally-clause:
+	<span class="literal">finally</span> block
+		</blockquote>
+  </body>
+</html>

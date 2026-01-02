@@ -1,0 +1,7 @@
+crc-ccitt.ko
+dss1_divert.ko
+isdn.ko
+isdn_bsdcomp.ko
+ppp_async.ko
+ppp_generic.ko
+slhc.ko

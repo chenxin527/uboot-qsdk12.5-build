@@ -1,0 +1,8 @@
+./
+./usr
+./usr/include
+./usr/include/qca-nss-ecm
+./usr/include/qca-nss-ecm/ecm_interface_ipsec.h
+./usr/include/qca-nss-ecm/ecm_notifier.h
+./usr/include/qca-nss-ecm/ecm_interface_ovpn.h
+./host

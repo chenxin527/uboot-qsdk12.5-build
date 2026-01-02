@@ -1,0 +1,7 @@
+ahci.ko
+ahci_platform.ko
+libahci.ko
+libahci_platform.ko
+libata.ko
+scsi_mod.ko
+sd_mod.ko

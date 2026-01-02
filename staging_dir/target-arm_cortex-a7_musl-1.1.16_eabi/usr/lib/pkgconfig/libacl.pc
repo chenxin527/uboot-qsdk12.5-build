@@ -1,0 +1,10 @@
+prefix=/usr
+exec_prefix=/usr
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name:		libacl
+Description:	A library for POSIX Access Control Lists
+Version:	2.2.53
+Cflags:		-I${includedir}
+Libs:		-L${libdir} -lacl

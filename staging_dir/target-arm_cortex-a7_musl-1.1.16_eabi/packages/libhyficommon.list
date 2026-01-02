@@ -1,0 +1,15 @@
+./
+./usr
+./usr/include
+./usr/include/hyficommon
+./usr/include/hyficommon/split.h
+./usr/include/hyficommon/bufrd.h
+./usr/include/hyficommon/interface.h
+./usr/include/hyficommon/dbg.h
+./usr/include/hyficommon/csh.h
+./usr/include/hyficommon/cmd.h
+./usr/include/hyficommon/bufwr.h
+./usr/include/hyficommon/evloop.h
+./usr/lib
+./usr/lib/libhyficommon.so
+./host

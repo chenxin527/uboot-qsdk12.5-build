@@ -1,0 +1,6 @@
+nls_base.ko
+ohci-hcd.ko
+ohci-pci.ko
+ohci-platform.ko
+usb-common.ko
+usbcore.ko

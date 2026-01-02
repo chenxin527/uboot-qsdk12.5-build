@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<book xmlns="http://www.devhelp.net/book" title="Vala Reference Manual" link="index.html" author="" name="vala" version="2">
+  <chapters>
+    <sub name="Overview" link="overview.html">
+      <sub name="Getting started" link="overview.html#gettingstarted"/>
+    </sub>
+    <sub name="Types" link="types.html">
+      <sub name="Value types" link="types.html#valuetypes"/>
+      <sub name="Reference types" link="types.html#referencetypes"/>
+      <sub name="Nullable types" link="types.html#nullabletypes"/>
+      <sub name="Pointer types" link="types.html#pointertypes"/>
+    </sub>
+    <sub name="Expressions" link="expressions.html">
+      <sub name="Primary expressions" link="expressions.html#primary"/>
+      <sub name="Unary expressions" link="expressions.html#unary"/>
+      <sub name="Arithmetic operations" link="expressions.html#arithmetic"/>
+      <sub name="Shift operations" link="expressions.html#shift"/>
+      <sub name="Relational operations" link="expressions.html#relational"/>
+      <sub name="Logical operations" link="expressions.html#logical"/>
+      <sub name="Assignments" link="expressions.html#assignments"/>
+    </sub>
+    <sub name="Statements" link="statements.html">
+      <sub name="Selection statements" link="statements.html#selection"/>
+      <sub name="Iteration statements" link="statements.html#iteration"/>
+      <sub name="Jump statements" link="statements.html#jump"/>
+      <sub name="Try statement" link="statements.html#try"/>
+    </sub>
+    <sub name="Namespaces" link="namespaces.html">
+      <sub name="Namespace declarations" link="namespaces.html#declaration"/>
+    </sub>
+    <sub name="Methods" link="methods.html">
+      <sub name="Method declarations" link="methods.html#declaration"/>
+    </sub>
+    <sub name="Classes" link="classes.html">
+      <sub name="Class declarations" link="classes.html#declaration"/>
+      <sub name="Fields" link="classes.html#fields"/>
+      <sub name="Methods" link="classes.html#methods"/>
+      <sub name="Properties" link="classes.html#properties"/>
+      <sub name="Signals" link="classes.html#signals"/>
+    </sub>
+    <sub name="Structs" link="structs.html">
+      <sub name="Struct declarations" link="structs.html#declaration"/>
+      <sub name="Fields" link="structs.html#fields"/>
+      <sub name="Methods" link="structs.html#methods"/>
+      <sub name="Properties" link="structs.html#properties"/>
+    </sub>
+    <sub name="Interfaces" link="interfaces.html">
+      <sub name="Interface declarations" link="interfaces.html#declaration"/>
+      <sub name="Methods" link="interfaces.html#methods"/>
+      <sub name="Delegates" link="interfaces.html#delegates"/>
+      <sub name="Signals" link="interfaces.html#signals"/>
+    </sub>
+    <sub name="Enums" link="enums.html">
+      <sub name="Enum declarations" link="enums.html#declaration"/>
+    </sub>
+    <sub name="Delegates" link="delegates.html">
+      <sub name="Delegate declarations" link="delegates.html#declaration"/>
+    </sub>
+    <sub name="Exceptions" link="exceptions.html">
+      <sub name="Exception handling" link="exceptions.html#handling"/>
+    </sub>
+    <sub name="Attributes" link="attributes.html"/>
+  </chapters>
+</book>

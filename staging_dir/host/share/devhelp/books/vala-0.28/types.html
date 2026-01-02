@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Types - Vala Reference Manual</title>
+    <link rel="stylesheet" type="text/css" href="default.css"/>
+  </head>
+  <body>
+    <div class="header">
+      <a href="index.html">Vala Reference Manual</a>
+    </div>
+    <h2>Types</h2>
+    <p>Vala supports four kinds of data types: value types, reference types, type parameters, and pointer types. Value types include simple types (e.g. char, int, and float), enum types, array types, and struct types. Reference types include object types, delegate types, and error types. Type parameters are parameters used in generic types.</p>
+    <p>Value types differ from reference types in that variables of the value types directly contain their data, whereas variables of the reference types store references to their data, the latter being known as objects. With reference types, it is possible for two variables to reference the same object, and thus possible for operations on one variable to affect the object referenced by the other variable. With value types, the variables each have their own copy of the data, and it is not possible for operations on one to affect the other.</p>
+    <blockquote>
+type:
+	value-type
+	reference-type
+	nullable-type
+	type-parameter
+	pointer-type
+	</blockquote>
+    <h3>Value types<a id="valuetypes"> </a></h3>
+    <p>Instances of value types are stored directly in variables.  They are duplicated whenever assigned to another variable (e.g. passed to a method).  For local variables, value types are stored on the stack.</p>
+    <blockquote>
+value-type:
+	struct-type
+	enum-type
+        array-type
+
+struct-type:
+	type-name
+	integral-type
+	floating-point-type
+	<span class="literal">bool</span>
+
+integral-type:
+	<span class="literal">char</span>
+	<span class="literal">uchar</span>
+	<span class="literal">short</span>
+	<span class="literal">ushort</span>
+	<span class="literal">int</span>
+	<span class="literal">uint</span>
+	<span class="literal">long</span>
+	<span class="literal">ulong</span>
+	<span class="literal">size_t</span>
+	<span class="literal">ssize_t</span>
+	<span class="literal">int8</span>
+	<span class="literal">uint8</span>
+	<span class="literal">int16</span>
+	<span class="literal">uint16</span>
+	<span class="literal">int32</span>
+	<span class="literal">uint32</span>
+	<span class="literal">int64</span>
+	<span class="literal">uint64</span>
+	<span class="literal">unichar</span>
+
+floating-point-type:
+	<span class="literal">float</span>
+	<span class="literal">double</span>
+
+enum-type:
+	type-name
+
+array-type:
+	non-array-type <span class="literal">[]</span>
+	non-array-type <span class="literal">[</span> dim-seperators <span class="literal">]</span>
+
+non-array-type:
+	value-type
+	object-type
+	class-type
+	delegate-type
+	error-type
+
+dim-separators:
+	<span class="literal">,</span>
+	dim-separators <span class="literal">,</span>
+		</blockquote>
+    <h4>Struct types<a id="structtypes"> </a></h4>
+    <p>Documentation</p>
+    <h4>Simple types<a id="simpletypes"> </a></h4>
+    <p>Documentation</p>
+    <h4>Integral types<a id="integraltypes"> </a></h4>
+    <p>Documentation</p>
+    <h4>Floating point types<a id="floatingpointtypes"> </a></h4>
+    <p>Documentation</p>
+    <h4>The bool type<a id="booltype"> </a></h4>
+    <p>Documentation</p>
+    <h4>Enumeration types<a id="enumtypes"> </a></h4>
+    <p>An enumeration type is a type containing named constants.</p>
+    <p>See enums.</p>
+    <h3>Reference types<a id="referencetypes"> </a></h3>
+    <p>Instances of reference types are always stored on the heap. Variables contain references to them. Assigning to another variable duplicates reference, not object.</p>
+    <blockquote>
+reference-type:
+	object-type
+	class-type
+	delegate-type
+	error-type
+	weak-reference-type
+
+weak-reference-type:
+	<span class="literal">weak</span> object-type
+	<span class="literal">weak</span> class-type
+	<span class="literal">weak</span> array-type
+	<span class="literal">weak</span> delegate-type
+	<span class="literal">weak</span> error-type
+
+object-type:
+	type-name
+	<span class="literal">string</span>
+
+class-type:
+	type-name <span class="literal">. Class</span>
+
+delegate-type:
+	type-name
+
+error-type:
+	type-name
+		</blockquote>
+    <h4>Weak reference types<a id="weakreferencetypes"> </a></h4>
+    <p>Documentation</p>
+    <h4>Array types<a id="arraytypes"> </a></h4>
+    <p>An array is a data structure that contains zero or more elements of the same type.</p>
+    <h4>Delegate types<a id="delegatetypes"> </a></h4>
+    <p>A delegate is a data structure that refers to a method, and for instance methods, it also refers to the corresponding object instance.</p>
+    <h4>Error types<a id="errortypes"> </a></h4>
+    <p>Instances of error types represent recoverable runtime errors.</p>
+    <h3>Nullable types<a id="nullabletypes"> </a></h3>
+    <p>An instance of a nullable type <code>T?</code> can either be a value of type <code>T</code> or <code>null</code>.</p>
+    <blockquote>
+nullable-type:
+	value-type <span class="literal">?</span>
+	reference-type <span class="literal">?</span>
+		</blockquote>
+    <h3>Pointer types<a id="pointertypes"> </a></h3>
+    <p>Unlike references, pointers are not tracked by the memory manager. The value of a pointer having type T* represents the address of a variable of type T. The pointer indirection operator * can be used to access this variable. Like a nullable object reference, a pointer can be null. The <code>void*</code> type represents a pointer to an unknown type. As the referent type is unknown, the indirection operator cannot be applied to a pointer of type <code>void*</code>, nor can any arithmetic be performed on such a pointer. However, a pointer of type <code>void*</code> can be cast to any other pointer type (and vice versa) and compared to values of other pointer types.</p>
+    <blockquote>
+pointer-type:
+	type-name <span class="literal">*</span>
+	pointer-type <span class="literal">*</span>
+	<span class="literal">void*</span>
+		</blockquote>
+  </body>
+</html>

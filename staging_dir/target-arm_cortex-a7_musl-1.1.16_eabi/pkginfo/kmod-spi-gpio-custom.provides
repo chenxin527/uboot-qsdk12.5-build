@@ -1,0 +1,3 @@
+spi-bitbang.ko
+spi-gpio-custom.ko
+spi-gpio.ko

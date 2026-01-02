@@ -1,0 +1,4 @@
+libata.ko
+sata_mv.ko
+scsi_mod.ko
+sd_mod.ko

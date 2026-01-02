@@ -1,0 +1,5 @@
+nls_base.ko
+phy-msm-qusb.ko
+phy-msm-ssusb-qmp.ko
+usb-common.ko
+usbcore.ko

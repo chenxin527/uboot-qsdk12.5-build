@@ -1,0 +1,12 @@
+./
+./usr
+./usr/include
+./usr/include/sysfs
+./usr/include/sysfs/dlist.h
+./usr/include/sysfs/libsysfs.h
+./usr/lib
+./usr/lib/libsysfs.so.2
+./usr/lib/libsysfs.a
+./usr/lib/libsysfs.so.2.0.1
+./usr/lib/libsysfs.so
+./host

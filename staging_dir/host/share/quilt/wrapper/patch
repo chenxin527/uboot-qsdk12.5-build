@@ -1,0 +1,248 @@
+#! /data/han/q11/qsdk/staging_dir/host/bin/bash
+
+# This is a wrapper to GNU patch that recognizes the most common
+# options and mimics GNU patch's behavior and output, and creates the
+# quilt metadata as if quilt push was used to apply the patches.  When
+# options are used that this wrapper does not recognize, GNU patch is
+# used directly, and no quilt metadata will get created.
+
+PATCH=/data/han/q11/qsdk/staging_dir/host/bin/patch
+original_options=("$@")
+
+# GNU patch recognizes these environment variables
+if [ -n "$SIMPLE_BACKUP_SUFFIX" ]
+then
+    set -- --suffix "$SIMPLE_BACKUP_SUFFIX" "$@"
+fi
+if [ -n "$PATCH_VERSION_CONTROL" ]
+then
+    set -- --version-control "$PATCH_VERSION_CONTROL" "$@"
+elif [ -n "$VERSION_CONTROL" ]
+then
+    set -- --version-control "$VERSION_CONTROL" "$@"
+fi
+if [ -n "$POSIXLY_CORRECT" ]
+then
+    set -- --posix "$@"
+fi
+
+backup_files()
+{
+    declare dir=${QUILT_PC:-.pc}/$patch
+
+    if [ "$backup_mode" = --backup-if-mismatch ]
+    then
+	awk '
+	/^patching file / \
+	    { file=$0
+	      sub(/^patching file /, "", file)
+	    }
+	/^Hunk #[0-9]* / \
+	    { if (!(file in backup)) {
+	        backup[file] = 1
+	        #print "ln -f "dir"/"file" "prefix file suffix > "/dev/stderr"
+	        system("ln -f "dir"/"file" "prefix file suffix)
+	      }
+	    }
+	    { if (!silent)
+	        print
+	    }
+	' dir="${dir//\\/\\\\}" \
+	  prefix="${opt_prefix//\\/\\\\}" \
+	  suffix="${opt_suffix//\\/\\\\}" \
+	  silent="${opt_silent:+1}"
+    elif [ -n "$opt_silent" ]; then
+	cat > /dev/null
+    fi
+    if [ "$backup_mode" = --backup -a -d "$dir" ]
+    then
+	for file in $(find "$dir" -type f -a ! -path "$path/.timestamp")
+	do
+	    dest=$opt_prefix${file#$dir/}$opt_suffix
+	    mkdir -p $(dirname "$dest")
+	    ln -f $file $dest
+	done
+    fi
+}
+
+find_pipe_patch()
+{
+    declare patch=$1
+    patch=${patch//\[/\\[}
+    patch=${patch//\]/\\]}
+    set -- $(stat -c $'%a %N\n' /proc/*/fd/* 2>/dev/null \
+	     | sed -nre "s,^300 \`(/proc/.*/fd)/.*' -> \`$patch'$,\\1,p")
+    set -- $(stat -c $'%a %N\n' $1/* 2>/dev/null \
+	     | sed -nre "s,^500 \`.*' -> \`(.*)',\\1,p")
+    [ $# -eq 1 ] || set -- "$patch"
+    echo "$1"
+}
+
+options=`getopt -q -o bsB:z:i:p:d: \
+		   --long quiet,silent,backup,backup-if-mismatch \
+		   --long no-backup-if-mismatch,prefix: \
+		   --long suffix:,posix,input:,strip:,directory: -- "$@"`
+if [ $? -ne 0 ]
+then
+    cannot_handle=1
+else
+	case "${LC_ALL:-${LC_MESSAGES:-${LANG}}}" in
+	''|C|POSIX|en*)
+		;;
+	*)	cannot_handle=1
+		;;
+	esac
+fi
+if [ -z "$cannot_handle" ]; then
+    eval set -- "$options"
+
+    backup_mode=--backup-if-mismatch
+    opt_prefix=
+    opt_suffix=
+    opt_silent=
+    opt_input=
+    opt_strip=
+    opt_directory=$PWD
+
+    while :
+    do
+	case "$1" in
+	-b|--backup)
+	    backup_mode=--backup
+	    ;;
+	--backup-if-mismatch)
+	    backup_mode=--backup-if-mismatch
+	    ;;
+	-d|--directory)
+	    cd "$2" || exit 1
+	    shift
+	    ;;
+	-i|--input)
+	    opt_input=$2
+	    new_options[${#new_options[@]}]=$1
+	    new_options[${#new_options[@]}]=$2
+	    shift
+	    ;;
+	--no-backup-if-mismatch)
+	    backup_mode=--no-backup-if-mismatch
+	    ;;
+	-B|--prefix)
+	    opt_prefix=$2
+	    new_options[${#new_options[@]}]=$1
+	    new_options[${#new_options[@]}]=$2
+	    shift
+	    ;;
+	-s|--silent|--quiet)
+	    opt_silent=--silent
+	    ;;
+	-p|--strip)
+	    opt_strip=-p$2
+	    new_options[${#new_options[@]}]=-p$2
+	    shift
+	    ;;
+	-z|--suffix)
+	    opt_suffix=$2
+	    new_options[${#new_options[@]}]=$1
+	    new_options[${#new_options[@]}]=$2
+	    shift
+	    ;;
+	--posix)
+	    backup_mode=--no-backup-if-mismatch
+	    new_options[${#new_options[@]}]=$1
+	    ;;
+	--)
+	    shift
+	    break
+	    ;;
+	*)
+	    new_options[${#new_options[@]}]=$1
+	    ;;
+	esac
+	shift
+    done
+
+    [ -n "$opt_prefix$opt_suffix" ] || opt_suffix=.orig
+    if [ -z "$opt_strip" -o $# -ne 0 ]
+    then
+	cannot_handle=1
+    fi
+fi
+
+if [ -z "$cannot_handle" ]
+then
+    if [ -n "$opt_input" ]
+    then
+	patch=$opt_input
+    elif [ ! -e /proc/self ]
+    then
+	echo "patch-wrapper: /proc not mounted!" >&2
+	exit 1
+    elif [ -e /proc/self/fd/0 ]
+    then
+	patch=$(readlink /proc/self/fd/0)
+	case "$patch" in
+	pipe:*)
+		patch=$(find_pipe_patch "$patch")
+		;;
+	esac
+    fi
+    patch=${patch#$PWD/}
+
+    if [ ! -e "$patch" ]
+    then
+	cannot_handle=1
+    fi
+fi
+
+if [ -n "$cannot_handle" ]
+then
+    $PATCH "${original_options[@]}"
+    exit
+fi
+
+quilt_patches=${QUILT_PATCHES:-patches}
+dir=$(dirname "$quilt_patches/$patch")
+mkdir -p "$dir"
+if [ -e "$patch" ]
+then
+    if [ "${patch:0:1}" = / ]
+    then
+	ln -s "$patch" "$quilt_patches$patch"
+	patch=${patch#/}
+    else
+	while ! [ "$dir/$updir$patch" -ef "$patch" ]
+	do
+	    updir=$updir../
+	    [ ${#updir} -gt 96 ] && break
+	done
+	if [ "$dir/$updir$patch" -ef "$patch" ]
+	then
+	    ln -s "$updir$patch" "$quilt_patches/$patch"
+	fi
+    fi
+fi
+
+if [ "$opt_strip" = -p1 ]; then
+    echo "$patch"
+else
+    echo "$patch $opt_strip"
+fi >> $quilt_patches/series
+
+$PATCH "${new_options[@]}" --backup --prefix "${QUILT_PC:-.pc}/$patch/" \
+    | backup_files
+status=${PIPESTATUS[0]}
+if [ $status -eq 0 ]
+then
+    dir=${QUILT_PC:-.pc}/$patch
+    if [ ! -e "$dir" ]
+    then
+	mkdir -p "$dir"
+    fi
+    echo -n "" > $dir/.timestamp
+    if [ ! -e ${QUILT_PC:-.pc}/.version ]
+    then
+	echo 2 > ${QUILT_PC:-.pc}/.version
+    fi
+    echo "$patch" >> "${QUILT_PC:-.pc}/applied-patches"
+fi
+exit $status

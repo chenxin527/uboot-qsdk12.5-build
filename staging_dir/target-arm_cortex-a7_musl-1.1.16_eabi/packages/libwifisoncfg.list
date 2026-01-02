@@ -1,0 +1,9 @@
+./
+./usr
+./usr/include
+./usr/include/wlanif_cmn.h
+./usr/include/sonlib_cmn.h
+./usr/include/wifisoncfg
+./usr/lib
+./usr/lib/libwifisoncfg.so
+./host

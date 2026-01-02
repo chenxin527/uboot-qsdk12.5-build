@@ -1,0 +1,9 @@
+./
+./usr
+./usr/include
+./usr/include/hyfibr
+./usr/include/hyfibr/hyfi_ecm.h
+./usr/include/hyfibr/hyfi_api.h
+./usr/include/hyfibr/mc_api.h
+./usr/include/hyfibr/hyfi_hash.h
+./host

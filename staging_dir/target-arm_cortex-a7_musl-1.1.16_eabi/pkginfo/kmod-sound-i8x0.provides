@@ -1,0 +1,9 @@
+input-core.ko
+snd-ac97-codec.ko
+snd-compress.ko
+snd-hwdep.ko
+snd-intel8x0.ko
+snd-mixer-oss.ko
+snd-pcm-oss.ko
+snd-rawmidi.ko
+snd-seq-device.ko

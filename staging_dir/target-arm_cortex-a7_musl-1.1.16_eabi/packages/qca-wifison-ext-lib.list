@@ -1,0 +1,8 @@
+./
+./usr
+./usr/include
+./usr/include/qca-wifison-ext-lib
+./usr/include/qca-wifison-ext-lib/wifison_event.h
+./usr/lib
+./usr/lib/libqca_wifison_ext.so
+./host

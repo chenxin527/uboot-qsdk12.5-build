@@ -1,0 +1,6 @@
+./
+./usr
+./usr/include
+./usr/include/qca-rfs
+./usr/include/qca-rfs/rfs_dev.h
+./host

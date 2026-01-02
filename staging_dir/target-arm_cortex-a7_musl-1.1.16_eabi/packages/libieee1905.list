@@ -1,0 +1,12 @@
+./
+./usr
+./usr/include
+./usr/include/ieee1905
+./usr/include/ieee1905/ieee1905.h
+./usr/include/ieee1905/ieee1905_defs.h
+./usr/include/ieee1905/ieee1905_vendor.h
+./usr/include/ieee1905/ieee1905_vendor_consts.h
+./usr/include/ieee1905/mid.h
+./usr/lib
+./usr/lib/libieee1905.so
+./host

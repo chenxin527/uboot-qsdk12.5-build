@@ -1,0 +1,11 @@
+prefix=/data/han/q11/qsdk/staging_dir/host
+exec_prefix=/data/han/q11/qsdk/staging_dir/host
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: expat
+Version: 2.2.4
+Description: expat XML parser
+URL: http://www.libexpat.org
+Libs: -L${libdir} -lexpat
+Cflags: -I${includedir}

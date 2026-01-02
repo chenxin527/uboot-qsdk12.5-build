@@ -1,0 +1,7 @@
+nls_base.ko
+scsi_mod.ko
+sd_mod.ko
+uas.ko
+usb-common.ko
+usb-storage.ko
+usbcore.ko

@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Expressions - Vala Reference Manual</title>
+    <link rel="stylesheet" type="text/css" href="default.css"/>
+  </head>
+  <body>
+    <div class="header">
+      <a href="index.html">Vala Reference Manual</a>
+    </div>
+    <h2>Expressions</h2>
+    <h3>Primary expressions<a id="primary"> </a></h3>
+    <blockquote>
+primary-expression:
+	literal
+	simple-name
+	<span class="literal">(</span> expression <span class="literal">)</span>
+	member-access
+	invocation-expression
+	element-access
+	<span class="literal">this</span>
+	<span class="literal">base</span>
+	object-creation-expression
+	array-creation-expression
+	<span class="literal">sizeof (</span> type <span class="literal">)</span>
+	<span class="literal">typeof (</span> type <span class="literal">)</span>
+		</blockquote>
+    <h3>Unary expressions<a id="unary"> </a></h3>
+    <blockquote>
+unary-expression:
+	primary-expression
+	<span class="literal">+</span> unary-expression
+	<span class="literal">-</span> unary-expression
+	<span class="literal">!</span> unary-expression
+	<span class="literal">~</span> unary-expression
+	cast-expression
+		</blockquote>
+    <h3>Arithmetic operations<a id="arithmetic"> </a></h3>
+    <blockquote>
+multiplicative-expression:
+	unary-expression
+	multiplicative-expression <span class="literal">*</span> unary-expression
+	multiplicative-expression <span class="literal">/</span> unary-expression
+	multiplicative-expression <span class="literal">%</span> unary-expression
+
+additive-expression:
+	multiplicative-expression
+	additive-expression <span class="literal">+</span> multiplicative-expression
+	additive-expression <span class="literal">-</span> multiplicative-expression
+		</blockquote>
+    <h3>Shift operations<a id="shift"> </a></h3>
+    <blockquote>
+shift-expression:
+	additive-expression
+	shift-expression <span class="literal">&lt;&lt;</span> additive-expression
+	shift-expression <span class="literal">&gt;&gt;</span> additive-expression
+		</blockquote>
+    <h3>Relational operations<a id="relational"> </a></h3>
+    <blockquote>
+relational-expression:
+	shift-expression
+	relational-expression <span class="literal">&lt;</span> shift-expression
+	relational-expression <span class="literal">&lt;=</span> shift-expression
+	relational-expression <span class="literal">&gt;</span> shift-expression
+	relational-expression <span class="literal">&gt;=</span> shift-expression
+
+equality-expression:
+	relational-expression
+	equality-expression <span class="literal">==</span> relational-expression
+	equality-expression <span class="literal">!=</span> relational-expression
+		</blockquote>
+    <h3>Logical operations<a id="logical"> </a></h3>
+    <blockquote>
+and-expression:
+	equality-expression
+	and-expression <span class="literal">&amp;</span> equality-expression
+
+exclusive-or-expression:
+	and-expression
+	exclusive-or-expression <span class="literal">^</span> and-expression
+
+inclusive-or-expression:
+	exclusive-or-expression
+	inclusive-or-expression <span class="literal">|</span> exclusive-or-expression
+		</blockquote>
+    <h3>Assignments<a id="assignments"> </a></h3>
+    <blockquote>
+assigment:
+	unary-expression <span class="literal">=</span> expression
+	unary-expression <span class="literal">+=</span> expression
+	unary-expression <span class="literal">-=</span> expression
+	unary-expression <span class="literal">*=</span> expression
+	unary-expression <span class="literal">/=</span> expression
+	unary-expression <span class="literal">%=</span> expression
+	unary-expression <span class="literal">&amp;=</span> expression
+	unary-expression <span class="literal">|=</span> expression
+	unary-expression <span class="literal">^=</span> expression
+	unary-expression <span class="literal">&lt;&lt;=</span> expression
+	unary-expression <span class="literal">&gt;&gt;=</span> expression
+		</blockquote>
+  </body>
+</html>

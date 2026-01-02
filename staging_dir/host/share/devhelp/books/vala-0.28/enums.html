@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Enums - Vala Reference Manual</title>
+    <link rel="stylesheet" type="text/css" href="default.css"/>
+  </head>
+  <body>
+    <div class="header">
+      <a href="index.html">Vala Reference Manual</a>
+    </div>
+    <h2>Enums</h2>
+    <p>Enumerated types represent a set of constant values.</p>
+    <h3>Enum declarations<a id="declaration"> </a></h3>
+    <blockquote>
+enum-declaration:
+	[ access-modifier ] <span class="literal">enum</span> qualified-identifier <span class="literal">{</span> [ enum-members ] <span class="literal">}</span>
+
+enum-members:
+	enum-values [ <span class="literal">;</span> [ enum-methods ] ]
+
+enum-values:
+	enum-value [ <span class="literal">,</span> enum-values ]
+
+enum-value:
+	identifier [ <span class="literal">=</span> expression ]
+
+enum-methods:
+	method-declaration [ enum-methods ]
+</blockquote>
+  </body>
+</html>

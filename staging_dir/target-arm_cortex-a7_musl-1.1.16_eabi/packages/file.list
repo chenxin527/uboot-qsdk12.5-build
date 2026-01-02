@@ -1,0 +1,10 @@
+./
+./usr
+./usr/include
+./usr/include/magic.h
+./usr/lib
+./usr/lib/libmagic.a
+./usr/lib/libmagic.so.1
+./usr/lib/libmagic.so
+./usr/lib/libmagic.so.1.0.0
+./host

@@ -1,0 +1,6 @@
+mii.ko
+nls_base.ko
+r8152.ko
+usb-common.ko
+usbcore.ko
+usbnet.ko

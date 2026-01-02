@@ -1,0 +1,16 @@
+#libevent pkg-config source file
+
+prefix=/usr
+exec_prefix=/usr
+libdir=/usr/lib
+includedir=/usr/include
+
+Name: libevent_openssl
+Description: libevent_openssl adds openssl-based TLS support to libevent
+Version: 2.1.11
+Requires: libevent
+Conflicts:
+Libs: -L${libdir} -levent_openssl
+Libs.private:   -L/data/han/q11/ib3/sdk.new/staging_dir/target-arm_cortex-a7_musl-1.1.16_eabi/usr/lib/libssl.so -L/data/han/q11/ib3/sdk.new/staging_dir/target-arm_cortex-a7_musl-1.1.16_eabi/usr/lib/libcrypto.so
+Cflags: -I${includedir} 
+

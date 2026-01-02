@@ -1,0 +1,9 @@
+./
+./usr
+./usr/include
+./usr/include/rpcd
+./usr/include/rpcd/session.h
+./usr/include/rpcd/exec.h
+./usr/include/rpcd/plugin.h
+./usr/include/rpcd/uci.h
+./host

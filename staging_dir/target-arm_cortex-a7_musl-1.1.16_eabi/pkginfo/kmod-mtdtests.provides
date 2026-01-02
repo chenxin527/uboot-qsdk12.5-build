@@ -1,0 +1,8 @@
+mtd_nandecctest.ko
+mtd_oobtest.ko
+mtd_pagetest.ko
+mtd_readtest.ko
+mtd_speedtest.ko
+mtd_stresstest.ko
+mtd_subpagetest.ko
+mtd_torturetest.ko

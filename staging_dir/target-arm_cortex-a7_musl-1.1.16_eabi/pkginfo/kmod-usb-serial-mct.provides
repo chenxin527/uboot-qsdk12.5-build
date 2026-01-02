@@ -1,0 +1,5 @@
+mct_u232.ko
+nls_base.ko
+usb-common.ko
+usbcore.ko
+usbserial.ko

@@ -1,0 +1,6 @@
+asix.ko
+mii.ko
+nls_base.ko
+usb-common.ko
+usbcore.ko
+usbnet.ko

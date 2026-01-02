@@ -1,0 +1,5 @@
+[{release,"Erlang/OTP","17","6.4",
+          [{kernel,"3.2","/data/han/q11/qsdk/staging_dir/host/lib/erlang/lib/kernel-3.2"},
+           {stdlib,"2.4","/data/han/q11/qsdk/staging_dir/host/lib/erlang/lib/stdlib-2.4"},
+           {sasl,"2.4.1","/data/han/q11/qsdk/staging_dir/host/lib/erlang/lib/sasl-2.4.1"}],
+          permanent}].

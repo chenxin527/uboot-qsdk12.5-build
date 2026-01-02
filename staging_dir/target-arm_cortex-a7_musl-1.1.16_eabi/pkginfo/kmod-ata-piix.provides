@@ -1,0 +1,4 @@
+ata_piix.ko
+libata.ko
+scsi_mod.ko
+sd_mod.ko

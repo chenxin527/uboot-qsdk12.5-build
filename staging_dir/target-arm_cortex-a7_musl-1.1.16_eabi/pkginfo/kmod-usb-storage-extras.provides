@@ -1,0 +1,16 @@
+nls_base.ko
+scsi_mod.ko
+sd_mod.ko
+ums-alauda.ko
+ums-cypress.ko
+ums-datafab.ko
+ums-freecom.ko
+ums-isd200.ko
+ums-jumpshot.ko
+ums-karma.ko
+ums-sddr09.ko
+ums-sddr55.ko
+ums-usbat.ko
+usb-common.ko
+usb-storage.ko
+usbcore.ko

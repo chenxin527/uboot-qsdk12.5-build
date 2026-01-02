@@ -1,0 +1,3 @@
+input-core.ko
+rotary-gpio-custom.ko
+rotary_encoder.ko

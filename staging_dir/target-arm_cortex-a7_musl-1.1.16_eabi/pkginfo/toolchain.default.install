@@ -1,0 +1,6 @@
+libc
+libgcc
+libssp
+libstdcpp
+libpthread
+librt

@@ -1,0 +1,15 @@
+./
+./usr
+./usr/include
+./usr/include/libubus.h
+./usr/include/ubusmsg.h
+./usr/include/ubus_common.h
+./usr/lib
+./usr/lib/libubus.so
+./usr/lib/lua
+./usr/lib/lua/ubus.so
+./usr/sbin
+./usr/sbin/ubusd
+./usr/bin
+./usr/bin/ubus
+./host

@@ -1,0 +1,15 @@
+./
+./usr
+./usr/include
+./usr/include/sys
+./usr/include/sys/acl.h
+./usr/include/acl
+./usr/include/acl/libacl.h
+./usr/lib
+./usr/lib/libacl.so.1.1.2253
+./usr/lib/libacl.a
+./usr/lib/pkgconfig
+./usr/lib/pkgconfig/libacl.pc
+./usr/lib/libacl.so
+./usr/lib/libacl.so.1
+./host

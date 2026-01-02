@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Interfaces - Vala Reference Manual</title>
+    <link rel="stylesheet" type="text/css" href="default.css"/>
+  </head>
+  <body>
+    <div class="header">
+      <a href="index.html">Vala Reference Manual</a>
+    </div>
+    <h2>Interfaces</h2>
+    <p>Interfaces can be implemented by classes to provide functionality with a common interface. Each class
+	can implement multiple interface and interfaces can require other interfaces to be implemented.</p>
+    <h3>Interface declarations<a id="declaration"> </a></h3>
+    <pre>
+		public interface InterfaceName : RequiredInterface &lt;optional&gt;
+		{
+			&lt;interface members&gt;
+		}
+		</pre>
+    <h3>Methods<a id="methods"> </a></h3>
+    <p>Interfaces can contain abstract and non abstract methods.</p>
+    <pre>
+		public abstract void MethodName ();
+		public void MethodName2 ()
+		{
+			&lt;Implementation&gt;
+		}
+		</pre>
+    <h3>Delegates<a id="delegates"> </a></h3>
+    <p>Interfaces can also contain delegates</p>
+    <pre>
+		public delegate void DelegateName (void* data);
+		</pre>
+    <h3>Signals<a id="signals"> </a></h3>
+    <p>Signals are also supported by interfaces</p>
+    <pre>
+		public signal void SignalName ();
+		</pre>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+./
+./usr
+./usr/include
+./usr/include/storage
+./usr/include/storage/storage.h
+./usr/lib
+./usr/lib/libstorage.so
+./host

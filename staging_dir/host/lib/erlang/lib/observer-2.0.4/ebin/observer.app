@@ -1,0 +1,68 @@
+%%
+%% %CopyrightBegin%
+%% 
+%% Copyright Ericsson AB 2002-2013. All Rights Reserved.
+%% 
+%% The contents of this file are subject to the Erlang Public License,
+%% Version 1.1, (the "License"); you may not use this file except in
+%% compliance with the License. You should have received a copy of the
+%% Erlang Public License along with this software. If not, it can be
+%% retrieved online at http://www.erlang.org/.
+%% 
+%% Software distributed under the License is distributed on an "AS IS"
+%% basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
+%% the License for the specific language governing rights and limitations
+%% under the License.
+%% 
+%% %CopyrightEnd%
+%%
+{application, observer,
+   [{description, "OBSERVER version 1"},
+    {vsn, "2.0.4"},
+    {modules, [crashdump_viewer,
+	       cdv_atom_cb,
+	       cdv_bin_cb,
+	       cdv_detail_wx,
+	       cdv_dist_cb,
+	       cdv_ets_cb,
+	       cdv_fun_cb,
+	       cdv_gen_cb,
+	       cdv_html_wx,
+	       cdv_info_wx,
+	       cdv_int_tab_cb,
+	       cdv_mem_cb,
+	       cdv_mod_cb,
+	       cdv_multi_wx,
+	       cdv_port_cb,
+	       cdv_proc_cb,
+	       cdv_table_wx,
+	       cdv_term_cb,
+	       cdv_timer_cb,
+	       cdv_virtual_list_wx,
+	       cdv_wx,
+	       etop,
+	       etop_tr,
+	       etop_txt,
+	       observer,
+	       observer_app_wx,
+	       observer_html_lib,
+	       observer_lib,
+	       observer_perf_wx,
+	       observer_pro_wx,
+	       observer_procinfo,
+	       observer_sys_wx,
+	       observer_trace_wx,
+	       observer_traceoptions_wx,
+	       observer_tv_table,
+	       observer_tv_wx,
+	       observer_wx,
+	       ttb,
+	       ttb_et]},
+    {registered, []},
+    {applications, [kernel, stdlib]},
+    {env, []},
+    {runtime_dependencies, ["wx-1.2","stdlib-2.0","runtime_tools-1.8.14",
+			    "kernel-3.0","inets-5.10","et-1.5",
+			    "erts-6.0"]}]}.
+
+

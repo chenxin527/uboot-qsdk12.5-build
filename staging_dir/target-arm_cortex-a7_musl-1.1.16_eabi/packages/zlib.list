@@ -1,0 +1,13 @@
+./
+./usr
+./usr/include
+./usr/include/zconf.h
+./usr/include/zlib.h
+./usr/lib
+./usr/lib/libz.a
+./usr/lib/libz.so
+./usr/lib/pkgconfig
+./usr/lib/pkgconfig/zlib.pc
+./usr/lib/libz.so.1.2.11
+./usr/lib/libz.so.1
+./host

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Namespaces - Vala Reference Manual</title>
+    <link rel="stylesheet" type="text/css" href="default.css"/>
+  </head>
+  <body>
+    <div class="header">
+      <a href="index.html">Vala Reference Manual</a>
+    </div>
+    <h2>Namespaces</h2>
+    <h3>Namespace declarations<a id="declaration"> </a></h3>
+    <blockquote>
+namespace-declaration:
+	<span class="literal">namespace</span> qualified-identifier <span class="literal">{</span> [ namespace-members ] <span class="literal">}</span>
+
+qualified-identifier:
+	[ qualified-identifier <span class="literal">.</span> ] identifier
+
+namespace-members:
+	[ namespace-members ] namespace-member
+
+namespace-member:
+	namespace-declaration
+	method-declaration
+	field-declaration
+	constant-declaration
+	class-declaration
+	struct-declaration
+	interface-declaration
+	enum-declaration
+	delegate-declaration
+	errordomain-declaration
+		</blockquote>
+  </body>
+</html>

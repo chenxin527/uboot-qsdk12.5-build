@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Classes - Vala Reference Manual</title>
+    <link rel="stylesheet" type="text/css" href="default.css"/>
+  </head>
+  <body>
+    <div class="header">
+      <a href="index.html">Vala Reference Manual</a>
+    </div>
+    <h2>Classes</h2>
+    <p>A class is a data type that can contain fields, constants, methods, properties, and signals. Class types support inheritance, a mechanism whereby a derived class can extend and specialize a base class.</p>
+    <h3>Class declarations<a id="declaration"> </a></h3>
+    <p>The simplest class declaration looks like this:</p>
+    <pre>
+class ClassName {
+	&lt;class-member&gt;
+}</pre>
+    <p>As class types support inheritance, you can specify a base class you want to derive from:</p>
+    <pre>
+class ClassName : BaseClassName {
+	&lt;class-member&gt;
+}</pre>
+    <div class="note">
+      <h4>GObject Note</h4>
+      <p>It's recommended that you derive all your classes directly or indirectly from GLib.Object, unless you have a strong reason not to. Some class features are not supported for classes not deriving from GLib.Object.</p>
+    </div>
+    <p>Classes cannot have multiple base classes, however they may implement multiple interfaces:</p>
+    <pre>
+class ClassName : BaseClassName, FirstInterfaceName, SecondInterfaceName {
+	&lt;class-member&gt;
+}</pre>
+    <p>You may optionally specify an accessibility modifier. Classes support <code>public</code> and <code>private</code> accessibility and default to private if you don't specify one. Public classes may be accessed from outside the library or application they are defined in.</p>
+    <pre>
+public class ClassName {
+	&lt;class-member&gt;
+}</pre>
+    <p>The <code>abstract</code> modifier may be placed between the optional accessibility modifier and the class name to define an abstract class. An abstract class cannot be instantiated and is used as a base class for derived classes.</p>
+    <pre>
+abstract class ClassName {
+	&lt;class-member&gt;
+}</pre>
+    <p>The <code>static</code> modifier may be placed between the optional accessibility modifier and the class name to define a static class. A static class cannot be instantiated and may not have a base class. It can also not be used as a base class for derived classes and may only contain static members. Static classes are implicitly abstract, you may not use both modifiers, <code>abstract</code> and <code>static</code>, in the same class declaration.</p>
+    <pre>
+static class ClassName {
+	&lt;class-member&gt;
+}</pre>
+    <p>You may optionally prefix the class name with a namespace name. This places the class in the specified namespace without the need for a separate namespace declaration.</p>
+    <pre>
+class NamespaceName.ClassName {
+	&lt;class-member&gt;
+}</pre>
+    <h3>Fields<a id="fields"> </a></h3>
+    <p>Documentation</p>
+    <h3>Methods<a id="methods"> </a></h3>
+    <p>Documentation</p>
+    <h3>Properties<a id="properties"> </a></h3>
+    <blockquote>
+property-declaration:
+	[ access-modifier ] [ member-modifiers ] type identifier <span class="literal">{</span> accessor-declarations [ default-value ] <span class="literal">}</span> <span class="literal">;</span>
+
+accessor-declarations:
+	get-accessor [ set-accessor ]
+	set-accessor [ get-accessor ]
+
+get-accessor:
+	[ access-modifier ] <span class="literal">get</span> <span class="literal">;</span>
+	[ access-modifier ] <span class="literal">get</span> <span class="literal">{</span> statement-list <span class="literal">}</span>
+
+set-accessor:
+	[ access-modifier ] <span class="literal">set</span> [ <span class="literal">construct</span> ] <span class="literal">;</span>
+	[ access-modifier ] <span class="literal">set</span> [ <span class="literal">construct</span> ] <span class="literal">{</span> statement-list <span class="literal">}</span>
+
+default-value:
+	<span class="literal">default =</span> expression <span class="literal">;</span>
+		</blockquote>
+    <h3>Signals<a id="signals"> </a></h3>
+    <p>The signal system allows objects to emit signals that can be handled by user-provided signal handlers.</p>
+    <blockquote>
+signal-declaration:
+	[ access-modifier ] <span class="literal">signal</span> return-type identifier <span class="literal">(</span> [ parameter-list ] <span class="literal">)</span> <span class="literal">;</span>
+		</blockquote>
+  </body>
+</html>

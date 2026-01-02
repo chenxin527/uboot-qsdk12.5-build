@@ -1,0 +1,6 @@
+ipw.ko
+nls_base.ko
+usb-common.ko
+usb_wwan.ko
+usbcore.ko
+usbserial.ko

@@ -1,0 +1,16 @@
+./
+./usr
+./usr/include
+./usr/include/lualib.h
+./usr/include/lnum_config.h
+./usr/include/lua.h
+./usr/include/luaconf.h
+./usr/include/lauxlib.h
+./usr/lib
+./usr/lib/liblua.a
+./usr/lib/liblua.so.5.1.5
+./usr/lib/pkgconfig
+./usr/lib/pkgconfig/lua.pc
+./usr/lib/liblualib.so
+./usr/lib/liblua.so
+./host

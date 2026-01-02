@@ -1,0 +1,14 @@
+bas_gigaset.ko
+crc-ccitt.ko
+dss1_divert.ko
+gigaset.ko
+isdn.ko
+isdn_bsdcomp.ko
+nls_base.ko
+ppp_async.ko
+ppp_generic.ko
+ser_gigaset.ko
+slhc.ko
+usb-common.ko
+usb_gigaset.ko
+usbcore.ko

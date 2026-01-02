@@ -1,0 +1,10 @@
+./
+./usr
+./usr/include
+./usr/include/ubi-media.h
+./usr/include/libubi.h
+./usr/include/libubi-tiny.h
+./usr/include/ubi-user.h
+./usr/lib
+./usr/lib/libubi-utils.a
+./host

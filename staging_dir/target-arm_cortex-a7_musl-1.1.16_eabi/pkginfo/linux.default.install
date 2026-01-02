@@ -1,0 +1,5 @@
+kernel
+kmod-bootconfig
+kmod-usb-core
+kmod-usb-dwc3-ipq40xx
+kmod-usb-phy-dwc3-ipq40xx

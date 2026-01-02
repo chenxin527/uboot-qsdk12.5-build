@@ -1,0 +1,11 @@
+./
+./usr
+./usr/include
+./usr/include/qca-nss-macsec
+./usr/include/qca-nss-macsec/nss_macsec_secy.h
+./usr/include/qca-nss-macsec/nss_macsec_types.h
+./usr/include/qca-nss-macsec/nss_macsec_secy_tx.h
+./usr/include/qca-nss-macsec/nss_macsec_secy_rx.h
+./usr/lib
+./usr/lib/libfal.so
+./host

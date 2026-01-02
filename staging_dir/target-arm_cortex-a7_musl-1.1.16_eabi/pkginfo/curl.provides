@@ -1,0 +1,15 @@
+libc.so
+libcurl.so.4
+libcurl.so.4.5.0
+libgcc_s.so.1
+libmbedcrypto.so
+libmbedcrypto.so.1
+libmbedcrypto.so.2.12.0
+libmbedtls.so
+libmbedtls.so.10
+libmbedtls.so.2.12.0
+libmbedx509.so
+libmbedx509.so.0
+libmbedx509.so.2.12.0
+libssp.so.0
+libssp.so.0.0.0

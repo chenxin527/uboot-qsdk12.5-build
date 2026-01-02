@@ -1,0 +1,6 @@
+cpia2.ko
+nls_base.ko
+usb-common.ko
+usbcore.ko
+v4l2-common.ko
+videodev.ko
