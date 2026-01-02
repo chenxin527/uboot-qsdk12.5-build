@@ -1,0 +1,1323 @@
+/*
+ **************************************************************************
+ * Copyright (c) 2016-2017 The Linux Foundation. All rights reserved.
+ *
+ * Permission to use, copy, modify, and/or distribute this software for
+ * any purpose with or without fee is hereby granted, provided that the
+ * above copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
+ * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ **************************************************************************
+ */
+
+#include <common.h>
+#include <asm/global_data.h>
+#include "ipq807x_ppe.h"
+#include "ipq807x_uniphy.h"
+#include <fdtdec.h>
+#include "ipq_phy.h"
+
+DECLARE_GLOBAL_DATA_PTR;
+#define pr_info(fmt, args...) printf(fmt, ##args);
+/*
+ * ipq807x_ppe_gpio_reg_write()
+ */
+static inline void ipq807x_ppe_gpio_reg_write(u32 reg, u32 val)
+{
+	writel(val, IPQ807X_PPE_FPGA_GPIO_BASE_ADDR + reg);
+}
+
+/*
+ * ipq807x_ppe_reg_read()
+ */
+static inline void ipq807x_ppe_reg_read(u32 reg, u32 *val)
+{
+	*val = readl((void *)(IPQ807X_PPE_BASE_ADDR + reg));
+}
+
+/*
+ * ipq807x_ppe_reg_write()
+ */
+static inline void ipq807x_ppe_reg_write(u32 reg, u32 val)
+{
+	writel(val, (void *)(IPQ807X_PPE_BASE_ADDR + reg));
+}
+
+void ppe_ipo_rule_reg_set(union ipo_rule_reg_u *hw_reg, int rule_id)
+{
+	int i;
+
+	for (i = 0; i < 3; i++) {
+		ipq807x_ppe_reg_write(IPO_CSR_BASE_ADDR + IPO_RULE_REG_ADDRESS +
+			(rule_id * IPO_RULE_REG_INC) + (i * 4), hw_reg->val[i]);
+	}
+}
+
+void ppe_ipo_mask_reg_set(union ipo_mask_reg_u *hw_mask, int rule_id)
+{
+	int i;
+
+	for (i = 0; i < 2; i++) {
+		ipq807x_ppe_reg_write((IPO_CSR_BASE_ADDR + IPO_MASK_REG_ADDRESS +
+			(rule_id * IPO_MASK_REG_INC) + (i * 4)), hw_mask->val[i]);
+	}
+}
+
+void ppe_ipo_action_set(union ipo_action_u *hw_act, int rule_id)
+{
+	int i;
+
+	for (i = 0; i < 5; i++) {
+		ipq807x_ppe_reg_write((IPE_L2_BASE_ADDR + IPO_ACTION_ADDRESS +
+			(rule_id * IPO_ACTION_INC) + (i * 4)), hw_act->val[i]);
+	}
+}
+
+void ipq807x_ppe_acl_set(int rule_id, int rule_type, int pkt_type, int l4_port_no, int l4_port_mask, int permit, int deny)
+{
+	union ipo_rule_reg_u hw_reg = {0};
+	union ipo_mask_reg_u hw_mask = {0};
+	union ipo_action_u hw_act = {0};
+
+	memset(&hw_reg, 0, sizeof(hw_reg));
+	memset(&hw_mask, 0, sizeof(hw_mask));
+	memset(&hw_act, 0, sizeof(hw_act));
+
+	if (rule_id < MAX_RULE) {
+		if (rule_type == ADPT_ACL_HPPE_IPV4_DIP_RULE) {
+			hw_reg.bf.rule_type = ADPT_ACL_HPPE_IPV4_DIP_RULE;
+			hw_reg.bf.rule_field_0 = l4_port_no;
+			hw_reg.bf.rule_field_1 = pkt_type<<17;
+			hw_mask.bf.maskfield_0 = l4_port_mask;
+			hw_mask.bf.maskfield_1 = 7<<17;
+			if (permit == 0x0) {
+				hw_act.bf.dest_info_change_en = 1;
+				hw_act.bf.fwd_cmd = 0;/*forward*/
+				hw_reg.bf.pri = 0x1;
+			}
+
+			if (deny == 0x1) {
+				hw_act.bf.dest_info_change_en = 1;
+				hw_act.bf.fwd_cmd = 1;/*drop*/
+				hw_reg.bf.pri = 0x0;
+
+			}
+			hw_reg.bf.src_0 = 0x6;
+			hw_reg.bf.src_1 = 0x7;
+			ppe_ipo_rule_reg_set(&hw_reg, rule_id);
+			ppe_ipo_mask_reg_set(&hw_mask, rule_id);
+			ppe_ipo_action_set(&hw_act, rule_id);
+		}
+	}
+}
+
+/*
+ * ipq807x_ppe_vp_port_tbl_set()
+ */
+static void ipq807x_ppe_vp_port_tbl_set(int port, int vsi)
+{
+	u32 addr = IPQ807X_PPE_L3_VP_PORT_TBL_ADDR +
+		 (port * IPQ807X_PPE_L3_VP_PORT_TBL_INC);
+	ipq807x_ppe_reg_write(addr, 0x0);
+	ipq807x_ppe_reg_write(addr + 0x4 , 1 << 9 | vsi << 10);
+	ipq807x_ppe_reg_write(addr + 0x8, 0x0);
+}
+
+/*
+ * ipq807x_ppe_ucast_queue_map_tbl_queue_id_set()
+ */
+static void ipq807x_ppe_ucast_queue_map_tbl_queue_id_set(int queue, int port)
+{
+	uint32_t val;
+
+	ipq807x_ppe_reg_read(IPQ807X_PPE_QM_UQM_TBL +
+		 (port * IPQ807X_PPE_UCAST_QUEUE_MAP_TBL_INC), &val);
+
+	val |= queue << 4;
+
+	ipq807x_ppe_reg_write(IPQ807X_PPE_QM_UQM_TBL +
+		 (port * IPQ807X_PPE_UCAST_QUEUE_MAP_TBL_INC), val);
+}
+
+/*
+ * ipq807x_vsi_setup()
+ */
+static void ipq807x_vsi_setup(int vsi, uint8_t group_mask)
+{
+	uint32_t val = (group_mask << 24 | group_mask << 16 | group_mask << 8
+							    | group_mask);
+
+	/* Set mask */
+	ipq807x_ppe_reg_write(0x061800 + (vsi * 0x10), val);
+
+	/*  new addr lrn en | station move lrn en */
+	ipq807x_ppe_reg_write(0x061804 + (vsi * 0x10), 0x9);
+}
+
+/*
+ * ipq807x_gmac_enable()
+ */
+
+static void ipq807x_gmac_enable(void)
+{
+	writel(0x0, 0x1008004);
+}
+
+/*
+ * ipq807x_gmac_port_disable()
+ */
+void ipq807x_gmac_port_disable(int port)
+{
+	ipq807x_ppe_reg_write(IPQ807X_PPE_MAC_ENABLE + (0x200 * port), 0x70);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_MAC_SPEED + (0x200 * port), 0x2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_MAC_MIB_CTL + (0x200 * port), 0x1);
+}
+
+void ipq807x_speed_clock_set(int port, int speed_clock1, int speed_clock2)
+{
+	int i;
+
+	for (i = 0; i < 2; i++)
+	{
+		writel(speed_clock2, GCC_NSS_PORT1_RX_MISC + i*4 + port*0x10);
+		writel(speed_clock1, GCC_NSS_PORT1_RX_CFG_RCGR + i*8 + port*0x10);
+		writel(0x1, GCC_NSS_PORT1_RX_CMD_RCGR + i*8 + port*0x10);
+	}
+}
+
+int phy_status_get_from_ppe(int port_id)
+{
+	uint32_t reg_field = 0;
+
+	ipq807x_ppe_reg_read(PORT_PHY_STATUS_ADDRESS, &reg_field);
+	if (port_id == (PORT5 - PPE_UNIPHY_INSTANCE1))
+		reg_field >>= PORT_PHY_STATUS_PORT5_1_OFFSET;
+	else
+		reg_field >>= PORT_PHY_STATUS_PORT6_OFFSET;
+
+	return ((reg_field >> 7) & 0x1) ? 0 : 1;
+}
+
+void ppe_port_bridge_txmac_set(int port_id, int status)
+{
+	uint32_t reg_value = 0;
+
+	ipq807x_ppe_reg_read(IPE_L2_BASE_ADDR + PORT_BRIDGE_CTRL_ADDRESS +
+		 (port_id * PORT_BRIDGE_CTRL_INC), &reg_value);
+	if (status == 0)
+		reg_value |= TX_MAC_EN;
+	else
+		reg_value &= ~TX_MAC_EN;
+
+	ipq807x_ppe_reg_write(IPE_L2_BASE_ADDR + PORT_BRIDGE_CTRL_ADDRESS +
+		 (port_id * PORT_BRIDGE_CTRL_INC), reg_value);
+
+}
+
+void ipq807x_pqsgmii_speed_set(int port, int speed, int status)
+{
+	ppe_port_bridge_txmac_set(port + 1, status);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_MAC_SPEED + (0x200 * port), speed);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_MAC_ENABLE + (0x200 * port), 0x73);
+}
+
+
+
+void ppe_xgmac_speed_set(uint32_t uniphy_index, int speed)
+{
+	uint32_t reg_value = 0;
+
+	ipq807x_ppe_reg_read(PPE_SWITCH_NSS_SWITCH_XGMAC0 +
+		 (uniphy_index * NSS_SWITCH_XGMAC_MAC_TX_CONFIGURATION), &reg_value);
+
+	switch(speed) {
+	case 0:
+	case 1:
+	case 2:
+		reg_value &=~USS;
+		reg_value |=SS(XGMAC_SPEED_SELECT_1000M);
+		break;
+	case 3:
+		reg_value |=USS;
+		reg_value |=SS(XGMAC_SPEED_SELECT_10000M);
+		break;
+	case 4:
+		reg_value |=USS;
+		reg_value |=SS(XGMAC_SPEED_SELECT_2500M);
+		break;
+	case 5:
+		reg_value |=USS;
+		reg_value |=SS(XGMAC_SPEED_SELECT_5000M);
+		break;
+	}
+	reg_value |=JD;
+	ipq807x_ppe_reg_write(PPE_SWITCH_NSS_SWITCH_XGMAC0 +
+		 (uniphy_index * NSS_SWITCH_XGMAC_MAC_TX_CONFIGURATION), reg_value);
+
+}
+
+void ppe_xgmac_10g_r_speed_set(uint32_t uniphy_index)
+{
+	uint32_t reg_value = 0;
+
+	ipq807x_ppe_reg_read(PPE_SWITCH_NSS_SWITCH_XGMAC0 +
+		 (uniphy_index * NSS_SWITCH_XGMAC_MAC_TX_CONFIGURATION), &reg_value);
+
+	reg_value |=JD;
+	ipq807x_ppe_reg_write(PPE_SWITCH_NSS_SWITCH_XGMAC0 +
+		 (uniphy_index * NSS_SWITCH_XGMAC_MAC_TX_CONFIGURATION), reg_value);
+
+}
+
+void ppe_port_txmac_status_set(uint32_t uniphy_index)
+{
+	uint32_t reg_value = 0;
+
+	ipq807x_ppe_reg_read(PPE_SWITCH_NSS_SWITCH_XGMAC0 +
+		 (uniphy_index * NSS_SWITCH_XGMAC_MAC_TX_CONFIGURATION), &reg_value);
+
+	reg_value |=TE;
+	ipq807x_ppe_reg_write(PPE_SWITCH_NSS_SWITCH_XGMAC0 +
+		 (uniphy_index * NSS_SWITCH_XGMAC_MAC_TX_CONFIGURATION), reg_value);
+
+}
+
+void ppe_port_rxmac_status_set(uint32_t uniphy_index)
+{
+	uint32_t reg_value = 0;
+
+	ipq807x_ppe_reg_read(PPE_SWITCH_NSS_SWITCH_XGMAC0 +
+			MAC_RX_CONFIGURATION_ADDRESS +
+			(uniphy_index * NSS_SWITCH_XGMAC_MAC_RX_CONFIGURATION), &reg_value);
+
+	reg_value |= 0x5ee00c0;
+	reg_value |=RE;
+	reg_value |=ACS;
+	reg_value |=CST;
+	ipq807x_ppe_reg_write(PPE_SWITCH_NSS_SWITCH_XGMAC0 +
+			MAC_RX_CONFIGURATION_ADDRESS +
+			(uniphy_index * NSS_SWITCH_XGMAC_MAC_RX_CONFIGURATION), reg_value);
+
+}
+
+void ppe_mac_packet_filter_set(uint32_t uniphy_index)
+{
+	ipq807x_ppe_reg_write(PPE_SWITCH_NSS_SWITCH_XGMAC0 +
+			MAC_PACKET_FILTER_ADDRESS +
+			(uniphy_index * MAC_PACKET_FILTER_INC), 0x81);
+}
+
+void ipq807x_10g_r_speed_set(int port, int status)
+{
+	uint32_t uniphy_index;
+
+	/* Setting the speed only for PORT5 and PORT6 */
+	if (port == (PORT5 - PPE_UNIPHY_INSTANCE1))
+		uniphy_index = PPE_UNIPHY_INSTANCE1;
+	else if (port == (PORT6 - PPE_UNIPHY_INSTANCE1))
+		uniphy_index = PPE_UNIPHY_INSTANCE2;
+	else
+		return;
+
+	ppe_xgmac_10g_r_speed_set(uniphy_index - 1);
+	ppe_port_bridge_txmac_set(port + 1, status);
+	ppe_port_txmac_status_set(uniphy_index - 1);
+	ppe_port_rxmac_status_set(uniphy_index - 1);
+	ppe_mac_packet_filter_set(uniphy_index - 1);
+}
+
+void ipq807x_uxsgmii_speed_set(int port, int speed, int duplex,
+				int status)
+{
+	uint32_t uniphy_index;
+
+	/* Setting the speed only for PORT5 and PORT6 */
+	if (port == (PORT5 - PPE_UNIPHY_INSTANCE1))
+		uniphy_index = PPE_UNIPHY_INSTANCE1;
+	else if (port == (PORT6 - PPE_UNIPHY_INSTANCE1))
+		uniphy_index = PPE_UNIPHY_INSTANCE2;
+	else
+		return;
+
+	ppe_uniphy_usxgmii_autoneg_completed(uniphy_index);
+	ppe_uniphy_usxgmii_speed_set(uniphy_index, speed);
+	ppe_xgmac_speed_set(uniphy_index - 1, speed);
+	ppe_uniphy_usxgmii_duplex_set(uniphy_index, duplex);
+	ppe_uniphy_usxgmii_port_reset(uniphy_index);
+	ppe_port_bridge_txmac_set(port + 1, status);
+	ppe_port_txmac_status_set(uniphy_index - 1);
+	ppe_port_rxmac_status_set(uniphy_index - 1);
+	ppe_mac_packet_filter_set(uniphy_index - 1);
+}
+/*
+ * ipq807x_ppe_flow_port_map_tbl_port_num_set()
+ */
+static void ipq807x_ppe_flow_port_map_tbl_port_num_set(int queue, int port)
+{
+	ipq807x_ppe_reg_write(IPQ807X_PPE_L0_FLOW_PORT_MAP_TBL +
+			queue * IPQ807X_PPE_L0_FLOW_PORT_MAP_TBL_INC, port);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_L1_FLOW_PORT_MAP_TBL +
+			port * IPQ807X_PPE_L1_FLOW_PORT_MAP_TBL_INC, port);
+}
+
+/*
+ * ipq807x_ppe_flow_map_tbl_set()
+ */
+static void ipq807x_ppe_flow_map_tbl_set(int queue, int port)
+{
+	uint32_t val = port | 0x401000; /* c_drr_wt = 1, e_drr_wt = 1 */
+	ipq807x_ppe_reg_write(IPQ807X_PPE_L0_FLOW_MAP_TBL + queue * IPQ807X_PPE_L0_FLOW_MAP_TBL_INC,
+									val);
+
+	val = port | 0x100400; /* c_drr_wt = 1, e_drr_wt = 1 */
+	ipq807x_ppe_reg_write(IPQ807X_PPE_L1_FLOW_MAP_TBL + port * IPQ807X_PPE_L1_FLOW_MAP_TBL_INC,
+									val);
+}
+
+/*
+ * ipq807x_ppe_tdm_configuration
+ */
+static void ipq807x_ppe_tdm_configuration(void)
+{
+	int i = 0;
+
+	/*
+	 * TDM is configured with instructions for each tick
+	 * Port/action are configured as given below
+	 *
+	 * 0x5:0x5	TDM_CFG_VALID		0:idle tick
+	 * 0x4:0x4	TDM_CFG_DIR		0:ingress wr
+	 *					1:egress rd
+	 * 0x3:0x0	TDM_CFG_PORT_NUM	0:DMA
+	 *					1~4:Ethernet 1G
+	 *					5~6:Ethernet 5G
+	 *					7~8:Security0/1
+	 */
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_QCOM1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_QCOM3);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_QCOM2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_QCOM4);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID
+			| IPQ807X_PPE_TDM_CFG_DIR_EGRESS
+			| IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_QCOM1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_QCOM3);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_QCOM2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_QCOM4);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_INGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_GPIO_OFFSET + (i++ * 0x10),
+			IPQ807X_PPE_TDM_CFG_VALID |
+			IPQ807X_PPE_TDM_CFG_DIR_EGRESS |
+			IPQ807X_PPE_PORT_CRYPTO1);
+
+	/* Set TDM Depth to 100 entries */
+	ipq807x_ppe_reg_write(IPQ807X_PPE_TDM_CFG_DEPTH_OFFSET, IPQ807X_PPE_TDM_CFG_DEPTH_VAL);
+}
+
+/*
+ * ipq807x_ppe_sched_configuration
+ */
+static void ipq807x_ppe_sched_configuration(void)
+{
+	int i = 0;
+
+	/*
+	 * PSCH_TDM_CFG_TBL_DES_PORT : determine which egress port traffic
+	 *			will be selected and transmitted out
+	 * PSCH_TDM_CFG_TBL_ENS_PORT : determine which portâ€™s queue need
+	 *			to be linked to scheduler at the current tick
+	 * PSCH_TDM_CFG_TBL_ENS_PORT_BITMAP : determine port bitmap
+	 *			for source of queue
+	 *
+	 * 0xf:0x8	PSCH_TDM_CFG_TBL_ENS_PORT_BITMAP	1110_1110
+	 *							(Port:765-432)
+	 *
+	 * 0x7:0x4	PSCH_TDM_CFG_TBL_ENS_PORT		0:DMA
+	 *							1~4:Ethernet 1G
+	 *							5~6:Ethernet 5G
+	 *							7~8:Security0/1
+	 *
+	 * 0x3:0x0	PSCH_TDM_CFG_TBL_DES_PORT		0:DMA
+	 *							1~4:Ethernet 1G
+	 *							5~6:Ethernet 5G
+	 *							7~8:Security0/1
+	 *
+	 * For eg, 0xee60 =((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+	 *		IPQ807X_PPE_PORT_XGMAC1_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+	 *		IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+	 *		IPQ807X_PPE_PORT_XGMAC2 | IPQ807X_PPE_PORT_EDMA);
+	 */
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_XGMAC1_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM3_BITPOS | IPQ807X_PPE_PORT_QCOM2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_QCOM4 << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_QCOM4_BITPOS |
+			IPQ807X_PPE_PORT_QCOM3_BITPOS | IPQ807X_PPE_PORT_QCOM2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM1_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_XGMAC2_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_EDMA_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_CRYPTO1 << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_QCOM1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_QCOM1 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_EDMA_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA  << 4) | IPQ807X_PPE_PORT_QCOM2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_EDMA_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_QCOM2 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_XGMAC1_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_XGMAC2_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_CRYPTO1 << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_QCOM3);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_QCOM3 << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_XGMAC1_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_QCOM4);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_XGMAC2_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_QCOM4 << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_XGMAC2_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_EDMA_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_CRYPTO1 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_EDMA_BITPOS | IPQ807X_PPE_PORT_QCOM2_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_QCOM1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_QCOM1 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_EDMA_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_QCOM2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_XGMAC2_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_QCOM2 << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_XGMAC1_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_CRYPTO1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_XGMAC2_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_CRYPTO1 << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_QCOM3);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC2 << 4) | IPQ807X_PPE_PORT_EDMA);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC2_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_QCOM3 << 4) | IPQ807X_PPE_PORT_XGMAC1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_EDMA_BITPOS |
+			IPQ807X_PPE_PORT_QCOM4_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_EDMA << 4) | IPQ807X_PPE_PORT_XGMAC2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_FPGA_SCHED_OFFSET + (i++ * 0x10),
+			((IPQ807X_PPE_PORT_CRYPTO1_BITPOS | IPQ807X_PPE_PORT_XGMAC1_BITPOS |
+			IPQ807X_PPE_PORT_EDMA_BITPOS | IPQ807X_PPE_PORT_QCOM3_BITPOS |
+			IPQ807X_PPE_PORT_QCOM2_BITPOS | IPQ807X_PPE_PORT_QCOM1_BITPOS) << 8) |
+			(IPQ807X_PPE_PORT_XGMAC1 << 4) | IPQ807X_PPE_PORT_QCOM4);
+
+	/* Set Sched Depth to 50 entries */
+	ipq807x_ppe_reg_write(IPQ807X_PPE_TDM_SCHED_DEPTH_OFFSET, IPQ807X_PPE_TDM_SCHED_DEPTH_VAL);
+}
+
+/*
+ * ipq807x_ppe_c_sp_cfg_tbl_drr_id_set
+ */
+static void ipq807x_ppe_c_sp_cfg_tbl_drr_id_set(int id)
+{
+	ipq807x_ppe_reg_write(IPQ807X_PPE_L0_C_SP_CFG_TBL + (id * 0x80), id * 2);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_L1_C_SP_CFG_TBL + (id * 0x80), id * 2);
+}
+
+/*
+ * ipq807x_ppe_e_sp_cfg_tbl_drr_id_set
+ */
+static void ipq807x_ppe_e_sp_cfg_tbl_drr_id_set(int id)
+{
+	ipq807x_ppe_reg_write(IPQ807X_PPE_L0_E_SP_CFG_TBL + (id * 0x80), id * 2 + 1);
+	ipq807x_ppe_reg_write(IPQ807X_PPE_L1_E_SP_CFG_TBL + (id * 0x80), id * 2 + 1);
+}
+
+static void ppe_port_mux_set(int port_id, int port_type, int mode)
+{
+	union port_mux_ctrl_u port_mux_ctrl;
+
+	ipq807x_ppe_reg_read(IPQ807X_PORT_MUX_CTRL,  &(port_mux_ctrl.val));
+	port_mux_ctrl.bf.port4_pcs_sel = PORT4_PCS_SEL_GMII_FROM_PCS0;
+	if (port_id == PORT5) {
+		if (port_type == PORT_GMAC_TYPE) {
+			if (mode == PORT_WRAPPER_SGMII_PLUS || mode == PORT_WRAPPER_SGMII0_RGMII4)
+				port_mux_ctrl.bf.port5_pcs_sel = PORT5_PCS_SEL_GMII_FROM_PCS1;
+			else
+				port_mux_ctrl.bf.port5_pcs_sel = PORT5_PCS_SEL_GMII_FROM_PCS0;
+			port_mux_ctrl.bf.port5_gmac_sel = PORT5_GMAC_SEL_GMAC;
+		} else if (port_type == PORT_XGMAC_TYPE) {
+			port_mux_ctrl.bf.port5_pcs_sel = PORT5_PCS_SEL_GMII_FROM_PCS1;
+			port_mux_ctrl.bf.port5_gmac_sel = PORT5_GMAC_SEL_XGMAC;
+		}
+	} else if (port_id == PORT6) {
+		if (port_type == PORT_GMAC_TYPE) {
+			port_mux_ctrl.bf.port6_pcs_sel = PORT6_PCS_SEL_GMII_FROM_PCS2;
+			port_mux_ctrl.bf.port6_gmac_sel = PORT6_GMAC_SEL_GMAC;
+		} else if (port_type == PORT_XGMAC_TYPE) {
+			port_mux_ctrl.bf.port6_pcs_sel = PORT6_PCS_SEL_GMII_FROM_PCS2;
+			port_mux_ctrl.bf.port6_gmac_sel = PORT6_GMAC_SEL_XGMAC;
+		}
+	} else
+		return;
+
+	ipq807x_ppe_reg_write(IPQ807X_PORT_MUX_CTRL,  port_mux_ctrl.val);
+}
+
+static void ppe_port_mux_mac_type_set(int port_id, int mode)
+{
+	uint32_t port_type;
+
+	switch(mode)
+	{
+		case PORT_WRAPPER_SGMII0_RGMII4:
+			port_type = PORT_GMAC_TYPE;
+			break;
+		case PORT_WRAPPER_SGMII_PLUS:
+			port_type = PORT_GMAC_TYPE;
+			break;
+		case PORT_WRAPPER_USXGMII:
+			port_type = PORT_XGMAC_TYPE;
+			break;
+		case PORT_WRAPPER_10GBASE_R:
+			port_type = PORT_XGMAC_TYPE;
+			break;
+		default:
+			return;
+	}
+	ppe_port_mux_set(port_id, port_type, mode);
+}
+
+
+
+void ipq807x_ppe_interface_mode_init(void)
+{
+	uint32_t mode0, mode1, mode2;
+	int node;
+
+	node = fdt_path_offset(gd->fdt_blob, "/ess-switch");
+	if (node < 0) {
+		printf("Error: ess-switch not specified in dts");
+		return;
+	}
+
+	mode0 = fdtdec_get_uint(gd->fdt_blob, node, "switch_mac_mode", -1);
+	if (mode0 < 0) {
+		printf("Error: switch_mac_mode not specified in dts");
+		return;
+	}
+
+	mode1 = fdtdec_get_uint(gd->fdt_blob, node, "switch_mac_mode1", -1);
+	if (mode1 < 0) {
+		printf("Error: switch_mac_mode1 not specified in dts");
+		return;
+	}
+	mode2 = fdtdec_get_uint(gd->fdt_blob, node, "switch_mac_mode2", -1);
+	if (mode2 < 0) {
+		printf("Error: switch_mac_mode2 not specified in dts");
+		return;
+	}
+
+	ppe_uniphy_mode_set(PPE_UNIPHY_INSTANCE0, mode0);
+	ppe_uniphy_mode_set(PPE_UNIPHY_INSTANCE1, mode1);
+	ppe_uniphy_mode_set(PPE_UNIPHY_INSTANCE2, mode2);
+
+	/* Port 1-4 are used mac type as GMAC by default but Port5 and Port6
+	* can be used as GMAC or XGMAC */
+	ppe_port_mux_mac_type_set(PORT5, mode1);
+	ppe_port_mux_mac_type_set(PORT6, mode2);
+}
+
+/*
+ * ipq807x_ppe_provision_init()
+ */
+void ipq807x_ppe_provision_init(void)
+{
+	int i;
+	uint32_t queue;
+
+	/* Port4 Port5, Port6 port mux configuration, all GMAC */
+	writel(0x3b, 0x3a000010);
+
+	/* tdm/sched configuration */
+	ipq807x_ppe_tdm_configuration();
+	ipq807x_ppe_sched_configuration();
+
+	ipq807x_gmac_enable();
+
+	/* disable clock gating */
+	ipq807x_ppe_reg_write(0x000008, 0x0);
+
+	/* flow ctrl disable */
+	ipq807x_ppe_reg_write(0x200368, 0xc88);
+
+#ifdef CONFIG_IPQ807X_BRIDGED_MODE
+	/* Add CPU port 0 to VSI 2 */
+	ipq807x_ppe_vp_port_tbl_set(0, 2);
+
+	/* Add port 1 - 4 to VSI 2 */
+	ipq807x_ppe_vp_port_tbl_set(1, 2);
+	ipq807x_ppe_vp_port_tbl_set(2, 2);
+	ipq807x_ppe_vp_port_tbl_set(3, 2);
+	ipq807x_ppe_vp_port_tbl_set(4, 2);
+	ipq807x_ppe_vp_port_tbl_set(5, 2);
+	ipq807x_ppe_vp_port_tbl_set(6, 2);
+
+#else
+	ipq807x_ppe_vp_port_tbl_set(1, 2);
+	ipq807x_ppe_vp_port_tbl_set(2, 3);
+	ipq807x_ppe_vp_port_tbl_set(3, 4);
+	ipq807x_ppe_vp_port_tbl_set(4, 5);
+#endif
+
+	/* Unicast priority map */
+	ipq807x_ppe_reg_write(IPQ807X_PPE_QM_UPM_TBL, 0);
+
+	/* Port0 - 7 unicast queue settings */
+	for (i = 0; i < 8; i++) {
+		if (i == 0)
+			queue = 0;
+		else
+			queue = ((i * 0x10) + 0x70);
+
+		ipq807x_ppe_ucast_queue_map_tbl_queue_id_set(queue, i);
+		ipq807x_ppe_flow_port_map_tbl_port_num_set(queue, i);
+		ipq807x_ppe_flow_map_tbl_set(queue, i);
+		ipq807x_ppe_c_sp_cfg_tbl_drr_id_set(i);
+		ipq807x_ppe_e_sp_cfg_tbl_drr_id_set(i);
+	}
+
+	/* Port0 multicast queue */
+	ipq807x_ppe_reg_write(0x409000, 0x00000000);
+	ipq807x_ppe_reg_write(0x403000, 0x00401000);
+
+	/* Port1 - 7 multicast queue */
+	for (i = 1; i < 8; i++) {
+		ipq807x_ppe_reg_write(0x409100 + ((i - 1) * 0x40), i);
+		ipq807x_ppe_reg_write(0x403100 + ((i - 1) * 0x40), 0x401000 | i);
+	}
+
+	/*
+	 * Port0 - Port7 learn enable and isolation port bitmap and TX_EN
+	 * Here please pay attention on bit16 (TX_EN) is not set on port7
+	 */
+	for (i = 0; i < 7; i++)
+		ipq807x_ppe_reg_write(IPQ807X_PPE_PORT_BRIDGE_CTRL_OFFSET + (i * 4),
+			      IPQ807X_PPE_PORT_BRIDGE_CTRL_PROMISC_EN |
+			      IPQ807X_PPE_PORT_BRIDGE_CTRL_TXMAC_EN |
+			      IPQ807X_PPE_PORT_BRIDGE_CTRL_PORT_ISOLATION_BMP |
+			      IPQ807X_PPE_PORT_BRIDGE_CTRL_STATION_LRN_EN |
+			      IPQ807X_PPE_PORT_BRIDGE_CTRL_NEW_ADDR_LRN_EN);
+
+	ipq807x_ppe_reg_write(IPQ807X_PPE_PORT_BRIDGE_CTRL_OFFSET + (7 * 4),
+		      IPQ807X_PPE_PORT_BRIDGE_CTRL_PROMISC_EN |
+		      IPQ807X_PPE_PORT_BRIDGE_CTRL_PORT_ISOLATION_BMP |
+		      IPQ807X_PPE_PORT_BRIDGE_CTRL_STATION_LRN_EN |
+		      IPQ807X_PPE_PORT_BRIDGE_CTRL_NEW_ADDR_LRN_EN);
+
+	/* Global learning */
+	ipq807x_ppe_reg_write(0x060038, 0xc0);
+
+#ifdef CONFIG_IPQ807X_BRIDGED_MODE
+	ipq807x_vsi_setup(2, 0x7f);
+#else
+	ipq807x_vsi_setup(2, 0x03);
+	ipq807x_vsi_setup(3, 0x05);
+	ipq807x_vsi_setup(4, 0x09);
+	ipq807x_vsi_setup(5, 0x11);
+#endif
+
+	/* Port 0-7 STP */
+	for (i = 0; i < 8; i++)
+		ipq807x_ppe_reg_write(IPQ807X_PPE_STP_BASE + (0x4 * i), 0x3);
+
+	ipq807x_ppe_interface_mode_init();
+	/* Port 0-5 enable */
+	for (i = 0; i < 6; i++) {
+		ipq807x_gmac_port_disable(i);
+		ppe_port_bridge_txmac_set(i + 1, 1);
+	}
+
+	/* Allowing DHCP packets */
+	ipq807x_ppe_acl_set(0, ADPT_ACL_HPPE_IPV4_DIP_RULE, UDP_PKT, 67, 0xffff, 0, 0);
+	ipq807x_ppe_acl_set(1, ADPT_ACL_HPPE_IPV4_DIP_RULE, UDP_PKT, 68, 0xffff, 0, 0);
+	/* Dropping all the UDP packets */
+	ipq807x_ppe_acl_set(2, ADPT_ACL_HPPE_IPV4_DIP_RULE, UDP_PKT, 0, 0, 0, 1);
+}

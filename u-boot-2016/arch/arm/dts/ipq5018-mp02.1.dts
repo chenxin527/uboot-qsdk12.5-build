@@ -1,0 +1,123 @@
+/*
+ * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq5018-soc.dtsi"
+/ {
+	model ="QCA, IPQ5018-MP02.1";
+	compatible = "qca,ipq5018", "qca,ipq5018-mp02.1";
+	machid = <0x8040000>;
+	config_name = "config@mp02.1", "config-mp02.1";
+
+	aliases {
+		console = "/serial@78AF000";
+		nand = "/nand-controller@79B0000";
+	};
+
+	console: serial@78AF000 {
+		status = "ok";
+		serial_gpio {
+			blsp0_mux_uart_rx {
+				gpio = <20>;
+				func = <0>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+			blsp0_mux_uart_tx {
+				gpio = <21>;
+				func = <0>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+			blsp0_uart_rx {
+				gpio = <28>;
+				func = <3>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+			blsp0_uart_tx {
+				gpio = <29>;
+				func = <3>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+		};
+	};
+
+	nand: nand-controller@79B0000 {
+		status = "okay";
+		nand_gpio {
+			qspi_dat3 {
+				gpio = <4>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat2 {
+				gpio = <5>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat1 {
+				gpio = <6>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat0 {
+				gpio = <7>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_cs_n {
+				gpio = <8>;
+				func = <2>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_clk {
+				gpio = <9>;
+				func = <2>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	gmac_cfg {
+		ext_mdio_gpio = <36 37>;
+		gephy_led = <30>;
+
+		gmac1_cfg {
+			unit = <0>;
+			base = <0x39C00000>;
+			phy_address = <7>;
+		};
+		gmac2_cfg {
+			unit = <1>;
+			base = <0x39D00000>;
+			phy_address = <4>;
+			8033_gpio = <26>;
+		};
+	};
+};

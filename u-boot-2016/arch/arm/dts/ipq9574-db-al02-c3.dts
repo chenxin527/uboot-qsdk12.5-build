@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq9574-db-al02-c1.dts"
+/ {
+	machid = <0x1050201>;
+	config_name = "config@db-al02-c3", "config-db-al02-c3";
+
+	aliases {
+		i2c0 = "/i2c@78B9000";
+	};
+
+	ess-switch {
+		/* Overriding port5 configuration to support SFP instead
+		 * of QCA808x.
+		 */
+		/delete-property/qca808x_gpio;
+		/delete-property/qca808x_gpio_cnt;
+		switch_mac_mode1 = <PORT_WRAPPER_10GBASE_R>;
+		sfp_gpio = <61>;
+		sfp_gpio_cnt = <1>;
+		sfp_port = <4>;
+		sfp_port_cnt = <1>;
+		port_phyinfo {
+			port@4 {
+				/delete-property/phy_address;
+				phy_type = <SFP_PHY_TYPE>;
+			};
+		};
+	};
+};

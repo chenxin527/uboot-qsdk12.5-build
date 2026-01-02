@@ -1,0 +1,30 @@
+/*
+ * Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq40xx-dk01.dtsi"
+/ {
+	model ="QCA, IPQ40xx-DK01";
+	compatible = "qca,ipq40xx", "qca,ipq40xx-dk01";
+
+	machid = <0x8010000>;
+	config_name = "config@ap.dk01.1-c1";
+
+	aliases {
+		console = "/serial@78af000";
+		xhci0 = "/xhci@8a00000";
+		xhci1 = "/xhci@6000000";
+		i2c0 = "/i2c@78b7000";
+	};
+};
+

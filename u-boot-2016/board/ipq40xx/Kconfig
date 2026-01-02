@@ -1,0 +1,27 @@
+if ARCH_IPQ40xx
+
+config SYS_CPU
+	default "ipq40xx"
+
+config SYS_BOARD
+	default "ipq40xx"
+
+config SYS_VENDOR
+	default "qca/arm"
+
+config SYS_CONFIG_NAME
+	default "ipq40xx"
+
+config IPQ40XX_I2C
+	bool "ipq40xx i2c"
+
+config USB_XHCI_IPQ
+	bool "ipq40xx usb"
+
+config PCI_IPQ
+	bool "ipq40xx pci"
+
+config BOARD_TYPES
+	bool "Support board_type member in global data"
+	default y
+endif

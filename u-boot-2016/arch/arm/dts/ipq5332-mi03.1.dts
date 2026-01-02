@@ -1,0 +1,131 @@
+/*
+ * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
+ *
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq5332-soc.dtsi"
+/ {
+	machid = <0x8060005>;
+	config_name = "config@mi03.1", "config-mi03.1", "config@rdp447", "config-rdp447";
+
+	aliases {
+		console = "/serial@78AF000";
+	};
+
+	serial@78AF000 {
+		status = "ok";
+		serial_gpio {
+			blsp0_uart_rx {
+				gpio = <18>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+			};
+			blsp0_uart_tx {
+				gpio = <19>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	spi {
+		spi_gpio {
+			blsp0_spi_clk {
+				gpio = <14>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			blsp0_spi_mosi {
+				gpio = <15>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			blsp0_spi_miso {
+				gpio = <16>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_8MA>;
+			};
+			blsp0_spi_cs {
+				gpio = <17>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	ess-switch {
+		switch_mac_mode0 = <PORT_WRAPPER_SGMII0_RGMII4>;
+		switch_mac_mode1 = <PORT_WRAPPER_SGMII0_RGMII4>;
+		qca8033_gpio_cnt = <1>;
+		qca8033_gpio = <31>;
+		qca8337_switch_enable = <1>;
+
+		mdio_gpio {
+			mdc1 {
+				gpio = <27>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_2MA>;
+			};
+			mdio {
+				gpio = <28>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_2MA>;
+			};
+		};
+
+		port_phyinfo {
+			port@0 {
+				phy_address = <0>;
+				uniphy_id = <0>;
+				phy_type = <ATHRS17C_SWITCH_TYPE>;
+				uniphy_mode = <PORT_WRAPPER_SGMII0_RGMII4>;
+			};
+			port@1 {
+				phy_address = <5>;
+				phy_type = <QCA8033_PHY_TYPE>;
+				uniphy_id = <1>;
+				uniphy_mode = <PORT_WRAPPER_SGMII0_RGMII4>;
+			};
+		};
+
+		qca8337_swt_info {
+			switch@0 {
+				qca8337_rst_gpio = <22>;
+				mac_pwr = <0xaa545>;
+				port_count = <3>;
+				update = <1>;
+				skip_vlan = <1>;
+				pad0_mode = <0x80>;
+				pad5_mode = <0>;
+				pad6_mode = <0>;
+				port0 = <0x2613a0>;
+				sgmii_ctrl = <0xc74164de>;
+				port0_status = <0x4e>;
+				port6_status = <0>;
+				port_phy_address = <2 3 4>;
+			};
+		};
+	};
+};

@@ -1,0 +1,157 @@
+/*
+ * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq6018-soc.dtsi"
+/ {
+	model ="QCA, IPQ6018-EMULATION-C1";
+	compatible = "qca,ipq6018", "qca,ipq6018-emulation-c1";
+	machid = <0xF030000>;
+	config_name = "config@emulation-c3", "config-emulation-c3";
+	spi_nand_available = <1>;
+
+	aliases {
+		console = "/serial@78af000";
+		uart2 = "/serial@78b0000";
+		mmc = "/sdhci@7804000";
+		i2c0 = "/i2c@78b6000";
+		usb0 = "/xhci@8a00000";
+		usb1 = "/xhci@7000000";
+	};
+	serial@78af000 {
+		compatible = "qca,ipq-uartdm";
+		reg = <0x78af000 0x200>;
+		id = <2>;
+		bit_rate = <0xff>;
+		status = "ok";
+	};
+	serial@78b0000 {
+		reg = <0x78B0000 0x200>;
+		id = <1>;
+		bit_rate = <0xff>;
+		clk_rate = <3686400>;
+		m_value = <72>;
+		n_value = <15625>;
+		d_value = <15625>;
+		status = "ok";
+		serial_gpio {
+			gpio1 {
+				gpio = <71>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_DISABLE>;
+			};
+
+			gpio2 {
+				gpio = <72>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_DISABLE>;
+			};
+		};
+	};
+	spi {
+		compatible = "qcom,spi-qup-v2.7.0";
+		wr_pipe_0 = <12>;
+		rd_pipe_0 = <13>;
+		wr_pipe_1 = <14>;
+		rd_pipe_1 = <15>;
+		status = "ok";
+		spi_gpio {
+			gpio1 {
+				gpio = <38>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_2MA>;
+				oe = <GPIO_OE_DISABLE>;
+			};
+
+			gpio2 {
+				gpio = <39>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_2MA>;
+				oe = <GPIO_OE_DISABLE>;
+			};
+
+			gpio3 {
+				gpio = <40>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_2MA>;
+				oe = <GPIO_OE_DISABLE>;
+			};
+
+			gpio4 {
+				gpio = <41>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_2MA>;
+				oe = <GPIO_OE_DISABLE>;
+			};
+		};
+		spi_nand {
+			bus-num = <1>;
+			cs = <0>;
+		};
+	};
+	nand: nand-controller@79B0000 {
+		compatible = "qcom,qpic-nand.1.5.20";
+		reg = <0x79B0000 0x10000>;
+		status = "ok";
+		nand_gpio {};
+	};
+
+	mmc: sdhci@7804000 {
+		compatible = "qcom,sdhci-msm";
+        };
+
+	i2c0: i2c@78b6000 {
+		compatible = "qcom,qup-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x78b6000 0x600>;
+	        clock-frequency  = <400000>;
+
+		i2c_gpio {
+			gpio1 {
+				gpio = <42>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+
+			gpio2 {
+				gpio = <43>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+              };
+	};
+
+	xhci@8a00000 {
+		qcom,emulation = <1>;
+	};
+
+	xhci@7000000 {
+		qcom,emulation = <1>;
+	};
+
+	timer {
+		gpt_freq_hz = <240000>;
+	};
+
+};

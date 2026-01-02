@@ -1,0 +1,112 @@
+/*
+ * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq9574-soc.dtsi"
+/ {
+	machid = <0xF050000>;
+	config_name = "config@emulation-fbc";
+
+	aliases {
+		console = "/serial@78AF000";
+		nand = "/nand-controller@79B0000";
+		mmc = "/sdhci@7804000";
+		usb0 = "/xhci@8a00000";
+		i2c0 = "/i2c@78b6000";
+	};
+
+	timer {
+		gpt_freq_hz = <240000>;
+	};
+
+	nand: nand-controller@79B0000 {
+		status = "okay";
+		nand_gpio {};
+	};
+
+	mmc: sdhci@7804000 {
+		compatible = "qcom,sdhci-msm";
+	};
+
+	i2c0: i2c@78b6000 {
+		compatible = "qcom,qup-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x78b6000 0x600>;
+	        clock-frequency  = <400000>;
+
+		i2c_gpio {
+			gpio1 {
+				gpio = <36>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+
+			gpio2 {
+				gpio = <37>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+		};
+	};
+
+	xhci@8a00000 {
+		qcom,emulation = <1>;
+	};
+
+	pci0: pci@28000000 {
+		status = "disabled";
+		perst_gpio = <39>;
+		pci_gpio {
+			pci_rst {
+			};
+		};
+	};
+
+	pci1: pci@20000000 {
+		status = "disabled";
+		perst_gpio = <41>;
+		pci_gpio {
+			pci_rst {
+			};
+		};
+	};
+
+	pci2: pci@18000000 {
+		status = "disabled";
+		perst_gpio = <42>;
+		pci_gpio {
+			pci_rst {
+			};
+		};
+	};
+
+	pci3: pci@10000000 {
+		status = "disabled";
+		perst_gpio = <40>;
+		pci_gpio {
+			pci_rst {
+			};
+		};
+	};
+
+	ess-switch {
+		switch_mac_mode0 = <PORT_WRAPPER_SGMII0_RGMII4>;
+		switch_mac_mode1 = <PORT_WRAPPER_SGMII0_RGMII4>;
+		switch_mac_mode2 = <PORT_WRAPPER_SGMII0_RGMII4>;
+	};
+};

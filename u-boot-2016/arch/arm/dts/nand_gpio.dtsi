@@ -1,0 +1,157 @@
+/*
+ * Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#include "ipq40xx-soc.dtsi"
+#include <dt-bindings/qcom/gpio-ipq40xx.h>
+/ {
+	nand@79B0000 {
+		status = "ok";
+		nand_gpio {
+			gpio1 {
+				gpio = <52>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio2 {
+				gpio = <53>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio3 {
+				gpio = <54>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio4 {
+				gpio = <55>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio5 {
+				gpio = <56>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio6 {
+				gpio = <57>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio7 {
+				gpio = <58>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio8 {
+				gpio = <59>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio9 {
+				gpio = <60>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio10 {
+				gpio = <62>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio11 {
+				gpio = <63>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio12 {
+				gpio = <64>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio13 {
+				gpio = <65>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio14 {
+				gpio = <66>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio15 {
+				gpio = <67>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio16 {
+				gpio = <68>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio17 {
+				gpio = <69>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+		};
+	};
+};

@@ -1,0 +1,64 @@
+if ARCH_IPQ5018
+
+config SYS_CPU
+       default "ipq5018"
+
+config SYS_BOARD
+       default "ipq5018"
+
+config SYS_VENDOR
+       default "qca/arm"
+
+config SYS_CONFIG_NAME
+       default "ipq5018"
+
+config IPQ_I2C
+	bool "Enable i2c support on IPQ platform"
+
+config USB_XHCI_IPQ
+	bool "Enable usb support for ipq5018"
+
+config PCI_IPQ
+	bool "Enable pci support for ipq5018"
+
+config MMC_FLASH
+	bool "Enable MMC flash support for ipq5018"
+
+config IPQ_TZT
+	bool "Enable TZ test command for ipq5018"
+
+config UBI_WRITE
+	bool "Enable ubi volume write command for ipq5018"
+
+config QPIC_SERIAL
+	bool "Enable QPIC serial spi nand  for ipq5018"
+
+config IPQ_TINY
+	bool "Enable Tiny support for ipq5018"
+
+config IPQ_MTD_NOR
+	bool "Register nor in MTD framework for ipq5018"
+
+config IPQ_TINY_SPI_NOR
+	bool "This config helps to update spi-nor related updated in ipq5018"
+
+config NAND_FLASH
+	bool "Enable NAND driver for ipq5018"
+
+config GEPHY
+	bool "Enable Internel GEPHY for ipq5018"
+
+config ART_COMPRESSED
+	bool "Enable uncompress support for ipq5018"
+
+config BOARD_TYPES
+	bool "Support board_type member in global data"
+	default y
+
+config LIST_OF_CONFIG_NAMES_SUPPORT
+	bool "List of config names support"
+
+config LIST_FUSE
+	bool "Enable fuse list command"
+	default n
+endif

@@ -1,0 +1,127 @@
+/*
+ * Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#include "ipq40xx-soc.dtsi"
+#include <dt-bindings/qcom/gpio-ipq40xx.h>
+#include "nand_gpio.dtsi"
+/ {
+	model ="QCA, IPQ40xx-DK07";
+	compatible = "qca,ipq40xx", "qca,ipq40xx-dk07";
+
+	aliases {
+		console = "/serial@78af000";
+		xhci0 = "/xhci@8a00000";
+		xhci1 = "/xhci@6000000";
+		i2c0 = "/i2c@78b7000";
+		pci0 = "/pci@40000000";
+	};
+
+	serial@78af000 {
+		serial_gpio {
+			gpio1 {
+				gpio = <16>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+
+			gpio2 {
+				gpio = <17>;
+				func = <1>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+		};
+	};
+
+	edma_cfg {
+		unit = <0>;
+		/* Based on the enum for PSGMII phy interface from include/phy.h */
+		phy = <13>;
+		phy_name = "IPQ MDIO0";
+	};
+
+	i2c@78b7000 {
+		i2c_gpio {
+			gpio1 {
+				gpio = <20>;
+				func = <1>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+
+			gpio2 {
+				gpio = <21>;
+				func = <1>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+
+		};
+	};
+
+	ess-switch@c000000{
+		sw_gpio {
+			gpio1 {
+				gpio = <6>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio2 {
+				gpio = <7>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio3 {
+				gpio = <41>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_ENABLE>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio4 {
+				/* overriding the default configuration of gpio52 */
+				gpio = <52>;
+				func = <0>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+		};
+	};
+
+	pci@40000000 {
+		status = "ok";
+		pci_gpio {
+			gpio1 {
+				gpio = <38>;
+				out = <GPIO_OUT_HIGH>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_ENABLE>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio2 {
+				gpio = <40>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+		};
+	};
+};

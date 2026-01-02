@@ -1,0 +1,347 @@
+CONFIG_ARM=y
+CONFIG_HAS_VBAR=y
+CONFIG_CPU_V7=y
+CONFIG_ARCH_IPQ5332=y
+CONFIG_SYS_MALLOC_F_LEN=0x400
+CONFIG_SYS_MALLOC_F=y
+CONFIG_DM_SERIAL=y
+CONFIG_DEFAULT_DEVICE_TREE=""
+CONFIG_LOCALVERSION=""
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+CONFIG_EXPERT=y
+CONFIG_SYS_MALLOC_CLEAR_ON_INIT=y
+CONFIG_FIT=y
+CONFIG_FIT_VERBOSE=y
+# CONFIG_FIT_SIGNATURE is not set
+CONFIG_SYS_EXTRA_OPTIONS=""
+CONFIG_SYS_PROMPT="IPQ5332# "
+
+#
+# Tiny support
+#
+CONFIG_IPQ_TINY2=y
+
+#
+# Info commands
+#
+CONFIG_CMD_BDI=y
+CONFIG_CMD_CONSOLE=y
+
+#
+# Boot commands
+#
+# CONFIG_CMD_BOOTD is not set
+CONFIG_CMD_BOOTM=y
+CONFIG_CMD_GO=y
+CONFIG_CMD_RUN=y
+# CONFIG_CMD_IMI is not set
+# CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_XIMG is not set
+
+#
+# Environment commands
+#
+CONFIG_CMD_EXPORTENV=y
+CONFIG_CMD_IMPORTENV=y
+CONFIG_CMD_EDITENV=y
+CONFIG_CMD_SAVEENV=y
+CONFIG_CMD_ENV_EXISTS=y
+
+#
+# Memory commands
+#
+CONFIG_CMD_MEMORY=y
+CONFIG_CMD_CRC32=y
+# CONFIG_LOOPW is not set
+# CONFIG_CMD_MEMTEST is not set
+# CONFIG_CMD_MX_CYCLIC is not set
+# CONFIG_CMD_MEMINFO is not set
+
+#
+# Device access commands
+#
+
+CONFIG_CMD_DM=y
+# CONFIG_CMD_DEMO is not set
+CONFIG_CMD_LOADB=y
+CONFIG_CMD_LOADS=y
+CONFIG_CMD_FLASH=y
+# CONFIG_CMD_NAND is not set
+# CONFIG_CMD_SF is not set
+# CONFIG_CMD_SPI is not set
+# CONFIG_CMD_I2C is not set
+# CONFIG_CMD_USB is not set
+CONFIG_CMD_FPGA=y
+
+#
+# Shell scripting commands
+#
+CONFIG_CMD_ECHO=y
+CONFIG_CMD_ITEST=y
+CONFIG_CMD_SOURCE=y
+CONFIG_CMD_SETEXPR=y
+
+#
+# Network commands
+#
+
+#
+# Network PHY
+#
+# CONFIG_IPQ_QCA_AQUANTIA_PHY is not set
+# CONFIG_QCA8033_PHY is not set
+CONFIG_QCA8081_PHY=y
+CONFIG_QCA8084_PHY=y
+CONFIG_QCA8084_SWT_MODE=y
+CONFIG_QCA8084_BYPASS_MODE=y
+# CONFIG_ATHRS17C_SWITCH is not set
+
+CONFIG_CMD_NET=y
+# CONFIG_CMD_TFTPPUT is not set
+# CONFIG_CMD_TFTPSRV is not set
+# CONFIG_CMD_RARP is not set
+# CONFIG_CMD_DHCP is not set
+# CONFIG_CMD_NFS is not set
+# CONFIG_CMD_PING is not set
+# CONFIG_CMD_CDP is not set
+# CONFIG_CMD_SNTP is not set
+# CONFIG_CMD_DNS is not set
+# CONFIG_CMD_LINK_LOCAL is not set
+
+#
+# Misc commands
+#
+# CONFIG_CMD_TIME is not set
+CONFIG_CMD_MISC=y
+# CONFIG_CMD_PART is not set
+# CONFIG_PARTITION_UUIDS is not set
+# CONFIG_CMD_TIMER is not set
+# CONFIG_IPQ_TZT is not set
+CONFIG_UBI_WRITE=y
+#
+# Boot timing
+#
+# CONFIG_BOOTSTAGE is not set
+CONFIG_BOOTSTAGE_USER_COUNT=20
+CONFIG_BOOTSTAGE_STASH_ADDR=0
+CONFIG_BOOTSTAGE_STASH_SIZE=4096
+
+#
+# Power commands
+#
+
+#
+# Security commands
+#
+CONFIG_SUPPORT_OF_CONTROL=y
+
+#
+# Device Tree Control
+#
+CONFIG_OF_CONTROL=y
+CONFIG_OF_BOARD_FIXUP=y
+CONFIG_OF_SEPARATE=y
+# CONFIG_OF_EMBED is not set
+CONFIG_NET=y
+# CONFIG_NET_RANDOM_ETHADDR is not set
+# CONFIG_NETCONSOLE is not set
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+CONFIG_DM=y
+CONFIG_DM_WARN=y
+CONFIG_DM_DEVICE_REMOVE=y
+CONFIG_DM_STDIO=y
+CONFIG_DM_SEQ_ALIAS=y
+# CONFIG_REGMAP is not set
+# CONFIG_DEVRES is not set
+CONFIG_SIMPLE_BUS=y
+# CONFIG_CLK is not set
+# CONFIG_CPU is not set
+
+#
+# Hardware crypto devices
+#
+# CONFIG_FSL_CAAM is not set
+
+#
+# Demo for driver model
+#
+# CONFIG_DM_DEMO is not set
+
+#
+# DFU support
+#
+# CONFIG_DFU_TFTP is not set
+
+#
+# GPIO Support
+#
+# CONFIG_LPC32XX_GPIO is not set
+# CONFIG_VYBRID_GPIO is not set
+
+#
+# I2C support
+#
+# CONFIG_DM_I2C_COMPAT is not set
+# CONFIG_CROS_EC_KEYB is not set
+# CONFIG_IPQ_I2C is not set
+
+#
+# LED Support
+#
+# CONFIG_LED is not set
+
+#
+# Multifunction device drivers
+#
+# CONFIG_CROS_EC is not set
+# CONFIG_FSL_SEC_MON is not set
+# CONFIG_PCA9551_LED is not set
+# CONFIG_RESET is not set
+
+#
+# MMC Host controller Support
+#
+# CONFIG_DM_MMC is not set
+# CONFIG_MMC_FLASH is not set
+
+#
+# NAND Device Support
+#
+# CONFIG_NAND_DENALI is not set
+# CONFIG_NAND_VF610_NFC is not set
+# CONFIG_NAND_PXA3XX is not set
+
+#
+# Generic NAND options
+#
+CONFIG_NAND_FLASH=y
+
+#
+# Serial NAND
+#
+CONFIG_QPIC_SERIAL=y
+
+#
+# SPI Flash Support
+
+#
+# CONFIG_SPI_FLASH is not set
+# CONFIG_DM_ETH is not set
+# CONFIG_PHYLIB is not set
+# CONFIG_NETDEVICES is not set
+# CONFIG_IPQ_MTD_NOR is not set
+# CONFIG_IPQ_TINY_SPI_NOR is not set
+
+#
+# PCI
+#
+# CONFIG_DM_PCI is not set
+# CONFIG_PCI_IPQ is not set
+
+#
+# Pin controllers
+#
+# CONFIG_PINCTRL is not set
+
+#
+# Power
+#
+# CONFIG_DM_PMIC is not set
+# CONFIG_DM_REGULATOR is not set
+# CONFIG_RAM is not set
+
+#
+# Real Time Clock
+#
+# CONFIG_DM_RTC is not set
+
+#
+# Serial drivers
+#
+CONFIG_REQUIRE_SERIAL_CONSOLE=y
+# CONFIG_DEBUG_UART is not set
+
+#
+
+# Sound support
+#
+# CONFIG_SOUND is not set
+
+#
+# SPI Support
+#
+# CONFIG_FSL_ESPI is not set
+# CONFIG_TI_QSPI is not set
+# CONFIG_DM_THERMAL is not set
+
+#
+# TPM support
+#
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+# CONFIG_DM_USB is not set
+# CONFIG_USB_XHCI_IPQ is not set
+
+#
+# Graphics support
+#
+# CONFIG_VIDEO_VESA is not set
+# CONFIG_VIDEO_LCD_ANX9804 is not set
+# CONFIG_VIDEO_LCD_SSD2828 is not set
+# CONFIG_DISPLAY_PORT is not set
+# CONFIG_VIDEO_TEGRA124 is not set
+# CONFIG_VIDEO_BRIDGE is not set
+# CONFIG_PHYS_TO_BUS is not set
+
+#
+# File systems
+#
+
+#
+# Library routines
+
+#
+# CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED is not set
+CONFIG_HAVE_PRIVATE_LIBGCC=y
+CONFIG_USE_PRIVATE_LIBGCC=y
+CONFIG_SYS_HZ=1000
+# CONFIG_SYS_VSNPRINTF is not set
+CONFIG_REGEX=y
+# CONFIG_LIB_RAND is not set
+# CONFIG_CMD_DHRYSTONE is not set
+# CONFIG_RSA is not set
+# CONFIG_TPM is not set
+
+#
+# Hashing Support
+#
+# CONFIG_SHA1 is not set
+# CONFIG_SHA256 is not set
+# CONFIG_SHA_HW_ACCEL is not set
+
+#
+# Compression Support
+#
+# CONFIG_LZ4 is not set
+CONFIG_LZMA=y
+# CONFIG_ERRNO_STR is not set
+# CONFIG_UNIT_TEST is not set
+
+CONFIG_SYS_THUMB_BUILD=y
+CONFIG_HAS_THUMB2=y
+
+#
+# DPR support
+#
+CONFIG_DPR_EXECUTE=y

@@ -1,0 +1,231 @@
+/*
+ * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq9574-soc.dtsi"
+/ {
+	machid = <0x1050000>;
+	config_name = "config@db-al01-c1", "config-db-al01-c1";
+
+	aliases {
+		console = "/serial@78B1000";
+		uart2 = "/serial@78B2000";
+		usb0 = "/xhci@8a00000";
+		pci0 = "/pci@28000000";
+		pci1 = "/pci@10000000";
+		pci2 = "/pci@20000000";
+		pci3 = "/pci@18000000";
+		nand = "/nand-controller@79B0000";
+		i2c0 = "/i2c@78B8000";
+	};
+
+	console: serial@78B1000 {
+		status = "ok";
+		serial_gpio {
+			blsp1_uart2_rx {
+				gpio = <34>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+			blsp1_uart2_tx {
+				gpio = <35>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+		};
+	};
+
+	spi {
+		spi_gpio {
+			blsp0_spi_clk {
+				gpio = <11>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			blsp0_spi_mosi {
+				gpio = <14>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			blsp0_spi_miso {
+				gpio = <13>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+			};
+			blsp0_spi_cs {
+				gpio = <12>;
+				func = <1>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	nand: nand-controller@79B0000 {
+		status = "okay";
+		nand_gpio {
+			qspi_dat3 {
+				gpio = <0>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat2 {
+				gpio = <1>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat1 {
+				gpio = <2>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat0 {
+				gpio = <3>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_cs_n {
+				gpio = <4>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_clk {
+				gpio = <5>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	pci0: pci@28000000 {
+		status = "ok";
+		perst_gpio = <23>;
+		pci_gpio {
+			pci_rst {
+				gpio = <23>;
+				func = <0>;
+				pull = <GPIO_PULL_UP>;
+				oe = <GPIO_OD_ENABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	pci1: pci@10000000 {
+		status = "ok";
+		perst_gpio = <26>;
+		pci_gpio {
+			pci_rst {
+				gpio = <26>;
+				func = <0>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OD_ENABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	pci2: pci@20000000 {
+		status = "ok";
+		perst_gpio = <29>;
+		pci_gpio {
+			pci_rst {
+				gpio = <29>;
+				func = <0>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OD_ENABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	pci3: pci@18000000 {
+		status = "ok";
+		perst_gpio = <32>;
+		pci_gpio {
+			pci_rst {
+				gpio = <32>;
+				func = <0>;
+				pull = <GPIO_PULL_UP>;
+				oe = <GPIO_OD_ENABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	ess-switch {
+		switch_mac_mode0 = <PORT_WRAPPER_PSGMII>;
+		switch_mac_mode1 = <PORT_WRAPPER_USXGMII>;
+		switch_mac_mode2 = <PORT_WRAPPER_SGMII0_RGMII4>;
+		qca807x_gpio = <60>;
+		qca807x_gpio_cnt = <1>;
+		aquantia_gpio = <36>;
+		aquantia_gpio_cnt = <1>;
+		aquantia_port = <4>;
+		aquantia_port_cnt = <1>;
+		qca808x_gpio = <57>;
+		qca808x_gpio_cnt = <1>;
+		mdc_mdio_gpio = <38 39>;
+		port_phyinfo {
+			port@0 {
+				phy_address = <16>;
+				phy_type = <QCA807x_PHY_TYPE>;
+			};
+			port@1 {
+				phy_address = <17>;
+				phy_type = <QCA807x_PHY_TYPE>;
+			};
+			port@2 {
+				phy_address = <18>;
+				phy_type = <QCA807x_PHY_TYPE>;
+			};
+			port@3 {
+				phy_address = <19>;
+				phy_type = <QCA807x_PHY_TYPE>;
+			};
+			port@4 {
+				phy_address = <8>;
+				phy_type = <AQ_PHY_TYPE>;
+			};
+			port@5 {
+				phy_address = <28>;
+				phy_type = <QCA808x_PHY_TYPE>;
+			};
+		};
+	};
+};

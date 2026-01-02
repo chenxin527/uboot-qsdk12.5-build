@@ -1,0 +1,64 @@
+/*
+ * Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq806x-soc.dtsi"
+/ {
+	model ="QCA, IPQ806x-AP145";
+	compatible = "qca,ipq806x", "qca,ipq806x-ap145";
+	machid = <4810>;
+	config_name = "config@ap145";
+
+	aliases {
+		console = "/serial@16340000";
+		nand = "/nand@1A600000";
+		i2c0 = "/i2c@16380000";
+		gmac_gpio = "/gmac1_gpio";
+		sdcc = "/sdcc@12400000";
+	};
+
+	serial@16340000 {
+		status = "ok";
+	};
+
+	gmac_cfg {
+		gmac_count = <2>;
+
+		gmac1_cfg {
+			base = <0x37200000>;
+			unit = <1>;
+			is_macsec = <1>;
+			mac_pwr0 = <0x00080000>;
+			mac_pwr1 = <0x00040000>;
+			mac_conn_to_phy = <0>;
+			phy_interface_type = <7>;
+			phy_address_count = <1>;
+			phy_address = <4>;
+			phy_name = "IPQ MDIO1";
+		};
+
+		gmac2_cfg {
+			base = <0x37400000>;
+			unit = <2>;
+			is_macsec = <1>;
+			mac_pwr0 = <0x00080000>;
+			mac_pwr1 = <0x00040000>;
+			mac_conn_to_phy = <0>;
+			phy_interface_type = <2>;
+			phy_address_count = <4>;
+			phy_address = <0 1 2 3>;
+			phy_name = "IPQ MDIO2";
+		};
+
+	};
+};

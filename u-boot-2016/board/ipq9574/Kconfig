@@ -1,0 +1,31 @@
+if ARCH_IPQ9574
+
+config SYS_CPU
+       default "ipq9574"
+
+config SYS_BOARD
+       default "ipq9574"
+
+config SYS_VENDOR
+       default "qca/arm"
+
+config SYS_CONFIG_NAME
+       default "ipq9574"
+
+config IPQ9574_QCA_AQUANTIA_PHY
+	bool "Enable Aquantia PHY support for ipq9574"
+
+config IPQ9574_QCA8075_PHY
+	bool "Enable Malibu PHY support for ipq9574"
+
+config BOARD_TYPES
+	bool "Support board_type member in global data"
+	default y
+
+config LIST_OF_CONFIG_NAMES_SUPPORT
+	bool "List of config names support"
+
+config LIST_FUSE
+	bool "Enable fuse list command"
+	default y
+endif

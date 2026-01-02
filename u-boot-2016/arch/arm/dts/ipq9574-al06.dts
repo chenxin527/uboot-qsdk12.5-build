@@ -1,0 +1,49 @@
+/*
+ * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq9574-al02-c4.dts"
+/ {
+	machid = <0x8050004>;
+	config_name = "config@al06", "config-al06";
+
+	ess-switch {
+		/* Overriding config to support QCA8084 PHY instead of
+		 * QCA8075 PHY
+		 */
+		/delete-property/qca807x_gpio;
+		/delete-property/qca807x_gpio_cnt;
+		qca808x_gpio = <60>;
+		qca808x_gpio_cnt = <1>;
+		switch_mac_mode0 = <PORT_WRAPPER_UQXGMII>;
+		port_phyinfo {
+			port@0 {
+				phy_address = <1>;
+				phy_type = <QCA8084_PHY_TYPE>;
+			};
+			port@1 {
+				phy_address = <2>;
+				phy_type = <QCA8084_PHY_TYPE>;
+			};
+			port@2 {
+				phy_address = <3>;
+				phy_type = <QCA8084_PHY_TYPE>;
+			};
+			port@3 {
+				phy_address = <4>;
+				phy_type = <QCA8084_PHY_TYPE>;
+			};
+		};
+	};
+};

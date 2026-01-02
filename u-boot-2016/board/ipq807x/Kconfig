@@ -1,0 +1,43 @@
+config SYS_CPU
+       default "ipq807x"
+
+config SYS_BOARD
+       default "ipq807x"
+
+config SYS_VENDOR
+       default "qca/arm"
+
+config SYS_CONFIG_NAME
+       default "ipq807x"
+
+config IPQ_I2C
+	bool "Enable i2c support on IPQ platform"
+
+config USB_XHCI_IPQ
+	bool "ipq807x usb support for ipq807x"
+
+config PCI_IPQ
+	bool "ipq807x pci support for ipq807x"
+
+config QCA_AQUANTIA_PHY
+	bool "Enable Aquantia PHY support for ipq807x"
+
+config QCA8033_PHY
+	bool "Enable QCA8033 PHY support for ipq807x"
+
+config QCA8081_PHY
+	bool "Enable QCA8081 PHY support for ipq807x"
+
+config QCA8075_PHY
+	bool "Enable QCA8075 PHY support for ipq807x"
+
+config BOARD_TYPES
+	bool "Support board_type member in global data"
+	default y
+
+config LIST_OF_CONFIG_NAMES_SUPPORT
+	bool "List of config names support"
+
+config LIST_FUSE
+	bool "Enable fuse list command"
+	default n

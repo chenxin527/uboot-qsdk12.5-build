@@ -1,0 +1,111 @@
+/*
+ * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq9574-db-al01-c1.dts"
+/ {
+	machid = <0x1050100>;
+	config_name = "config@db-al01-c2", "config-db-al01-c2";
+
+	aliases {
+		mmc = "/sdhci@7804000";
+	};
+
+	mmc: sdhci@7804000 {
+		compatible = "qcom,sdhci-msm";
+		status = "okay";
+		mmc_gpio {
+			emmc_dat7 {
+				gpio = <0>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat6 {
+				gpio = <1>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat5 {
+				gpio = <2>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat4 {
+				gpio = <3>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat3 {
+				gpio = <6>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat2 {
+				gpio = <7>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat1 {
+				gpio = <8>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat0 {
+				gpio = <9>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_cmd{
+				gpio = <4>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_clk{
+				gpio = <5>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_rclk{
+				gpio = <10>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	nand: nand-controller@79B0000 {
+		status = "disabled";
+	};
+};

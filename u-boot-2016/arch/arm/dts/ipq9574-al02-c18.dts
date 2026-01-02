@@ -1,0 +1,48 @@
+/*
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq9574-al02-c4.dts"
+/ {
+	machid = <0x8051101>;
+	config_name = "config@al02-c18", "config-al02-c18";
+
+	ess-switch {
+		switch_mac_mode0 = <PORT_WRAPPER_10GBASE_R>;
+		/delete-property/qca807x_gpio;
+		/delete-property/qca807x_gpio_cnt;
+		tdm_mode = <1>;
+		sfp_gpio = <60>;
+		sfp_gpio_cnt = <1>;
+		sfp_port = <0>;
+		sfp_port_cnt = <1>;
+		port_phyinfo {
+			port@0 {
+				/delete-property/phy_address;
+				phy_type = <SFP_PHY_TYPE>;
+			};
+			port@1 {
+				/delete-property/phy_address;
+				phy_type = <UNUSED_PHY_TYPE>;
+			};
+			port@2 {
+				/delete-property/phy_address;
+				phy_type = <UNUSED_PHY_TYPE>;
+			};
+			port@3 {
+				/delete-property/phy_address;
+				phy_type = <UNUSED_PHY_TYPE>;
+			};
+		};
+	};
+};

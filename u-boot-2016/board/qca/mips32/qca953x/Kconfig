@@ -1,0 +1,15 @@
+if TARGET_QCA953X
+
+config SYS_CPU
+	default "qca953x"
+
+config SYS_BOARD
+	default "mips32/qca953x"
+
+config SYS_VENDOR
+	default "qca"
+
+config SYS_CONFIG_NAME
+	default "qca953x"
+
+endif

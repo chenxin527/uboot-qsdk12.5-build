@@ -1,0 +1,34 @@
+if ARCH_IPQ6018
+
+config SYS_CPU
+       default "ipq6018"
+
+config SYS_BOARD
+       default "ipq6018"
+
+config SYS_VENDOR
+       default "qca/arm"
+
+config SYS_CONFIG_NAME
+       default "ipq6018"
+
+config USB_XHCI_IPQ
+	bool "Enable usb support for ipq6018"
+
+config PCI_IPQ
+	bool "Enable pci support for ipq6018"
+
+config IPQ6018_QCA_AQUANTIA_PHY
+	bool "Enable Aquantia PHY support for ipq6018"
+
+config BOARD_TYPES
+	bool "Support board_type member in global data"
+	default y
+
+config LIST_OF_CONFIG_NAMES_SUPPORT
+	bool "List of config names support"
+
+config LIST_FUSE
+	bool "Enable fuse list command"
+	default n
+endif

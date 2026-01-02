@@ -1,0 +1,158 @@
+/*
+ * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq5018-soc.dtsi"
+/ {
+	model ="QCA, IPQ5018-EMULATION";
+	compatible = "qca,ipq5018", "qca,ipq5018-emulation";
+	machid = <0x0F040000>;
+	config_name = "config@emulation-c2", "config-emulation-c2";
+
+	aliases {
+		console = "/serial@78AF000";
+		mmc = "/sdhci@7804000";
+		i2c0 = "/i2c@78b6000";
+		gmac_gpio = "/gmac_gpio";
+		usb0 = "/xhci@8a00000";
+		pci0 = "/pci@80000000";
+		nand = "/nand-controller@79B0000";
+	};
+
+	mmc: sdhci@7804000 {
+		compatible = "qcom,sdhci-msm";
+	};
+
+	console: serial@78AF000 {
+		status = "ok";
+		serial_gpio {
+			blsp0_uart_rx {
+				gpio = <20>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_DISABLE>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+			blsp0_uart_tx {
+				gpio = <21>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				oe = <GPIO_OE_DISABLE>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+		};
+	};
+
+	nand: nand-controller@79B0000 {
+		status = "okay";
+		nand_gpio {
+			qspi_dat3 {
+				gpio = <4>;
+				func = <2>;
+				oe = <GPIO_OE_DISABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat2 {
+				gpio = <5>;
+				func = <2>;
+				oe = <GPIO_OE_DISABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat1 {
+				gpio = <6>;
+				func = <2>;
+				oe = <GPIO_OE_DISABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat0 {
+				gpio = <7>;
+				func = <2>;
+				oe = <GPIO_OE_DISABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_cs_n {
+				gpio = <8>;
+				func = <2>;
+				oe = <GPIO_OE_DISABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	pci0: pci@80000000 {
+		status = "ok";
+		pci_gpio {
+			pci_rst {
+				gpio = <15>;
+				func = <0>;
+				oe = <GPIO_OD_ENABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	pci1: pci@a0000000 {
+		status = "ok";
+		pci_gpio {
+			pci_rst {
+				gpio = <18>;
+				func = <0>;
+				oe = <GPIO_OD_ENABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	timer {
+		gpt_freq_hz = <240000>;
+	};
+
+	gmac_cfg {
+		gmac_count = <2>;
+		ext_mdio_gpio = <1>;
+		gmac1_cfg {
+			unit = <0>;
+			base = <0x39C00000>;
+			phy_address = <7>;
+			phy_interface_mode = <2>;
+			phy_name = "IPQ MDIO0";
+		};
+
+		gmac2_cfg {
+			unit = <1>;
+			base = <0x39D00000>;
+			phy_address = <1>;
+			phy_interface_mode = <2>;
+			phy_name = "IPQ MDIO1";
+			mac_pwr0 = <0x00080000>;
+			mac_pwr1 = <0x00040000>;
+			s17c_switch_enable = <0>;
+		};
+       };
+
+	gmac_gpio{};
+
+	xhci@8a00000 {
+		qcom,emulation = <1>;
+	};
+
+};

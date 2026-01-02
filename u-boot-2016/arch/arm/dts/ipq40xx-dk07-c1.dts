@@ -1,0 +1,57 @@
+/*
+ * Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq40xx-dk07.dtsi"
+/ {
+	machid = <0x8010006>;
+	ddr_size = <512>;
+	config_name = "config@ap.dk07.1-c1";
+
+	spi {
+		status = "ok";
+		spi_gpio {
+			gpio1 {
+				gpio = <12>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio2 {
+				gpio = <13>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio3 {
+				gpio = <14>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio4 {
+				gpio = <15>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+		};
+	};
+};

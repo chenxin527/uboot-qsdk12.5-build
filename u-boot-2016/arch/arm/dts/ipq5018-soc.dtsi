@@ -1,0 +1,153 @@
+/*
+ * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#include "skeleton.dtsi"
+#include <dt-bindings/qcom/gpio-ipq5018.h>
+
+/ {
+
+	serial@78AF000 {
+		compatible = "qca,ipq-uartdm";
+		reg = <0x78af000 0x200>;
+		m_value = <0x24>;
+		n_value = <0xC31A>;
+		d_value = <0xC2F6>;
+		bit_rate = <0xff>;
+		status = "disabled";
+	};
+
+	timer {
+		gcnt_cntcv_lo = <0x4a2000>;
+		gcnt_cntcv_hi = <0x4a2004>;
+		gpt_freq_hz = <24000000>;
+		timer_load_val = <0x00FFFFFF 0xFFFFFFFF>;
+	};
+
+	spi {
+		compatible = "qcom,spi-qup-v2.7.0";
+		wr_pipe_0 = <4>;
+		rd_pipe_0 = <5>;
+		wr_pipe_1 = <6>;
+		rd_pipe_1 = <7>;
+		wr_pipe_2 = <8>;
+		rd_pipe_2 = <9>;
+		status = "ok";
+		spi_gpio {
+			blsp0_spi_clk {
+				gpio = <10>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_2MA>;
+			};
+			blsp0_spi_mosi {
+				gpio = <11>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_2MA>;
+			};
+			blsp0_spi_miso {
+				gpio = <12>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_2MA>;
+			};
+			blsp0_spi_cs {
+				gpio = <13>;
+				func = <1>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_2MA>;
+			};
+		};
+	};
+
+	nand: nand-controller@79B0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "qcom,qpic-nand-v2.1.1";
+		reg = <0x79B0000 0x10000>;
+		status = "disabled";
+	};
+
+	i2c0: i2c@78b7000 {
+		compatible = "qcom,qup-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x78b7000 0x600>;
+		clock-frequency  = <400000>;
+
+		i2c_gpio {
+			i2c_scl {
+				gpio = <25>;
+				func = <3>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+			};
+
+			i2c_sda{
+				gpio = <26>;
+				func = <3>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	xhci@8a00000 {
+		compatible = "qca,dwc3-ipq";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x8a00000 0xe000>;
+	};
+
+	pci@80000000 {
+		compatible = "qcom,ipq5018-pcie";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x80000000 0xf1d
+			0x78000 0x3000
+			0x80000F20 0xa8
+			0x80001000 0x1000
+			0x80300000 0xd00000
+			0x80100000 0x100000
+			0x01875004 0x40
+			0x7e000 0x800>;
+		reg-names = "pci_dbi", "parf", "elbi","dm_iatu", "axi_bars",
+				"axi_conf", "pci_rst", "pci_phy";
+		gen3 = <1>;
+		lane = <1>;
+		status = "disabled";
+		skip_phy_int = <1>;
+	};
+
+	pci@a0000000 {
+		compatible = "qcom,ipq5018-pcie";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0xa0000000 0xf1d
+			0x80000 0x3000
+			0xa0000F20 0xa8
+			0xa0001000 0x1000
+			0xa0300000 0xd00000
+			0xa0100000 0x100000
+			0x01876004 0x40
+			0x86000 0x1000>;
+		reg-names = "pci_dbi", "parf", "elbi","dm_iatu", "axi_bars",
+				"axi_conf", "pci_rst", "pci_phy";
+		gen3 = <1>;
+		lane = <2>;
+		status = "disabled";
+		skip_phy_int = <1>;
+	};
+};

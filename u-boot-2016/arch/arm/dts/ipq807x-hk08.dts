@@ -1,0 +1,64 @@
+/*
+ * Copyright (c) 2016 - 2018, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq807x-soc.dtsi"
+#include <dt-bindings/qcom/gpio-ipq807x.h>
+/ {
+	machid = <0x08010007>;
+	config_name = "config@hk08", "config-hk08";
+
+	aliases {
+		console = "/serial@78B3000";
+		pci0 = "/pci@20000000";
+		pci1 = "/pci@10000000";
+	};
+	ess-switch {
+		switch_mac_mode = <0x1>;
+		switch_mac_mode1 = <0x1>;
+		switch_mac_mode2 = <0x2>;
+		8033_port = <0>;
+		aquantia_port = <5>;
+		aquantia_gpio = <63>;
+		napa_gpio = <37>;
+		napa_gpio_cnt = <1>;
+		port_phyinfo {
+			port@0 {
+				phy_address = <6>;
+				phy_type = <4>;
+			};
+			port@1 {
+				phy_address = <1>;
+				phy_type = <1>;
+			};
+			port@2 {
+				phy_address = <2>;
+				phy_type = <1>;
+			};
+			port@3 {
+				phy_address = <3>;
+				phy_type = <1>;
+			};
+			port@4 {
+				phy_address = <20>;
+				phy_type = <2>;
+			};
+			port@5 {
+				phy_address = <7>;
+				phy_type = <3>;
+			};
+		};
+	};
+
+};
+

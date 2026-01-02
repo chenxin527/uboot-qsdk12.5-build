@@ -1,0 +1,101 @@
+/*
+ * Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq806x-soc.dtsi"
+/ {
+	model ="QCA, IPQ806x-AP160_2XX";
+	compatible = "qca,ipq806x", "qca,ipq806x-ap160_2XX";
+	machid = <4991>;
+	config_name = "config@ap160_2xx";
+
+	aliases {
+		console = "/serial@16340000";
+		nand = "/nand@1A600000";
+		gmac_gpio = "/gmac1_gpio";
+		pci0 = "/pci@1b500000";
+		pci1 = "/pci@1b700000";
+		pci2 = "/pci@1b900000";
+	};
+
+	gmac_cfg {
+		gmac_count = <1>;
+
+		gmac1_cfg {
+			base = <0x37000000>;
+			unit = <0>;
+			is_macsec = <0>;
+			mac_pwr0 = <0>;
+			mac_pwr1 = <0>;
+			mac_conn_to_phy = <0>;
+			phy_interface_type = <4>;
+			phy_address_count = <1>;
+			phy_address = <4>;
+			phy_name = "IPQ MDIO0";
+		};
+	};
+
+	pci@1b500000 {
+		pci_gpio {
+			gpio3 {
+				gpio = <3>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_12MA>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+		};
+	};
+
+	pci@1b700000 {
+		pci_gpio {
+			gpio48 {
+				gpio = <48>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_12MA>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+		};
+	};
+
+	pci@1b900000 {
+		pci_gpio {
+			gpio63 {
+				gpio = <63>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_12MA>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+		};
+	};
+
+	ar8033_gpio {
+		gpio2 {
+			gpio = <2>;
+			func = <0>;
+			pull = <GPIO_NO_PULL>;
+			drvstr = <GPIO_8MA>;
+			oe = <GPIO_OE_DISABLE>;
+		};
+		gpio66 {
+			gpio = <66>;
+			func = <0>;
+			pull = <GPIO_NO_PULL>;
+			drvstr = <GPIO_16MA>;
+			oe = <GPIO_OE_DISABLE>;
+		};
+	};
+
+};

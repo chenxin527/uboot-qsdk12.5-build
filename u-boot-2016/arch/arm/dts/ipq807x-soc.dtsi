@@ -1,0 +1,193 @@
+/*
+ * Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#include "skeleton.dtsi"
+#include <dt-bindings/qcom/gpio-ipq807x.h>
+
+/ {
+
+	serial@78B3000 {
+		compatible = "qca,ipq-uartdm";
+		reg = <0x78B3000 0x200>;
+		id = <4>;
+		bit_rate = <0xee>;
+	};
+
+	serial@78B0000 {
+		reg = <0x78B0000 0x200>;
+		id = <1>;
+		bit_rate = <0xee>;
+		clk_rate = <3686400>;
+		m_value = <72>;
+		n_value = <15625>;
+		d_value = <15625>;
+		serial_gpio {
+			gpio1 {
+				gpio = <44>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+
+			gpio2 {
+				gpio = <45>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+		};
+	};
+
+	timer {
+		gcnt_cntcv_lo = <0x4a2000>;
+		gcnt_cntcv_hi = <0x4a2004>;
+		gpt_freq_hz = <19200000>;
+		timer_load_val = <0x00FFFFFF 0xFFFFFFFF>;
+	};
+
+	spi {
+		status = "ok";
+
+		compatible = "qcom,spi-qup-v2.7.0";
+		wr_pipe_0 = <12>;
+		rd_pipe_0 = <13>;
+		wr_pipe_1 = <14>;
+		rd_pipe_1 = <15>;
+		wr_pipe_2 = <16>;
+		rd_pipe_2 = <17>;
+		wr_pipe_3 = <18>;
+		rd_pipe_3 = <19>;
+		wr_pipe_4 = <20>;
+		rd_pipe_4 = <21>;
+		wr_pipe_5 = <22>;
+		rd_pipe_5 = <23>;
+
+	};
+
+	nand: nand-controller@79B0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "qcom,qpic-nand.1.5.20";
+		reg = <0x79B0000 0x10000>;
+	};
+
+	xhci@8a00000 {
+		compatible = "qca,dwc3-ipq";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x8a00000 0xcd00>;
+	};
+
+	xhci@8c00000 {
+		compatible = "qca,dwc3-ipq";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x8c00000 0xcd00>;
+	};
+
+	i2c0: i2c@78b6000 {
+		compatible = "qcom,qup-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x78b6000 0x600>;
+		clock-frequency  = <400000>;
+
+		i2c_gpio {
+			gpio1 {
+				gpio = <42>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+
+			gpio2 {
+				gpio = <43>;
+				func = <2>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+
+		};
+	};
+
+	pci@20000000 {
+		compatible = "qcom,ipq807x-pcie";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x20000000 0xf1d
+			0x80000 0x2000
+			0x20000f20 0xa8
+			0x20001000 0x1000
+			0x20300000 0xd00000
+			0x20100000 0x100000
+			0x01875004 0x40
+			0x86000 0x1000
+			0x84000 0x1000>;
+		reg-names = "pci_dbi", "parf", "elbi","dm_iatu", "axi_bars",
+				"axi_conf", "pci_rst", "pci_phy_gen2", "pci_phy_gen3";
+		perst_gpio = <58>;
+
+		pci_gpio {
+			gpio1 {
+				gpio = <58>;
+				func = <0>;
+				out = <GPIO_OUT_HIGH>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_2MA>;
+				oe = <GPIO_OE_ENABLE>;
+				vm = <GPIO_VM_ENABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+		};
+	};
+
+	pci@10000000 {
+		compatible = "qcom,ipq807x-pcie";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x10000000 0xf1d
+			0x88000 0x2000
+			0x10000f20 0xa8
+			0x10300000 0xd00000
+			0x10100000 0x100000
+			0x1876004 0x40
+			0x8E000 0x1000>;
+		reg-names = "pci_dbi", "parf", "elbi", "axi_bars",
+				"axi_conf", "pci_rst", "pci_phy";
+		perst_gpio = <61>;
+
+		pci_gpio {
+			gpio1 {
+				gpio = <61>;
+				func = <0>;
+				out = <GPIO_OUT_HIGH>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_2MA>;
+				oe = <GPIO_OE_ENABLE>;
+				vm = <GPIO_VM_ENABLE>;
+				od_en = <GPIO_OD_DISABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+		};
+
+	};
+
+	mmc: sdhci@07824000 {
+		compatible = "qcom,sdhci-msm";
+	};
+};

@@ -1,0 +1,115 @@
+/*
+ * Copyright (c) 2021, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq5018-soc.dtsi"
+/ {
+	model ="QCA, SIROCCO-P0";
+	compatible = "qca,ipq5018", "qca,sirocco-p0";
+	machid = <0x1040006>;
+	config_name = "config@sirocco-p0";
+
+	aliases {
+		console = "/serial@78AF000";
+		mmc = "/sdhci@7804000";
+	};
+
+	console: serial@78AF000 {
+		status = "ok";
+		serial_gpio {
+			blsp0_uart_rx {
+				gpio = <28>;
+				func = <3>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_DISABLE>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+			blsp0_uart_tx {
+				gpio = <29>;
+				func = <3>;
+				pull = <GPIO_NO_PULL>;
+				oe = <GPIO_OE_DISABLE>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+			blsp1_uart_rx {
+				gpio = <20>;
+				func = <0>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_DISABLE>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+			blsp1_uart_tx {
+				gpio = <21>;
+				func = <0>;
+				pull = <GPIO_NO_PULL>;
+				oe = <GPIO_OE_DISABLE>;
+				drvstr = <GPIO_8MA>;
+				od_en = <GPIO_OD_DISABLE>;
+			};
+
+		};
+	};
+
+	mmc: sdhci@7804000 {
+		compatible = "qcom,sdhci-msm";
+		status = "okay";
+		mmc_gpio {
+			emmc_dat3 {
+				gpio = <4>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat2 {
+				gpio = <5>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat1 {
+				gpio = <6>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat0 {
+				gpio = <7>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_cmd{
+				gpio = <8>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_clk{
+				gpio = <9>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				od_en = <GPIO_OD_DISABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+};

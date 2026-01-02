@@ -1,0 +1,74 @@
+if ARCH_IPQ5332
+
+config SYS_CPU
+       default "ipq5332"
+
+config SYS_BOARD
+       default "ipq5332"
+
+config SYS_VENDOR
+       default "qca/arm"
+
+config SYS_CONFIG_NAME
+       default "ipq5332"
+
+config NAND_FLASH
+	bool "Enable NAND Framework"
+
+config REDUCE_FOOTPRINT
+	bool "Remove/reconfigure code to reduce footprint"
+
+config QPIC_SERIAL
+	bool "Enable QPIC serial NAND"
+
+config UBI_WRITE
+	bool "Enable ubi utilities"
+
+config MMC_FLASH
+	bool "Enable MMC flash support"
+
+config IPQ_TZT
+	bool "Enable TZ test command"
+
+config PCI_IPQ
+	bool "Enable pci support"
+
+config USB_XHCI_IPQ
+	bool "Enable usb support"
+
+config IPQ_I2C
+	bool "Enable i2c support"
+
+config IPQ_TINY
+	bool "Enable Tiny support"
+
+config IPQ_TINY_SPI_NOR
+	bool "This config helps to update spi-nor"
+
+config ART_COMPRESSED
+	bool "Enable uncompress support"
+
+config QCA8033_PHY
+	bool "Enable QCA8033 PHY support"
+
+config QCA8081_PHY
+	bool "Enable QCA8081 PHY support"
+
+config DPR_EXECUTE
+	bool "Enable DPR support"
+
+config BOARD_TYPES
+	bool "Support board_type member in global data"
+	default y
+
+config LIST_OF_CONFIG_NAMES_SUPPORT
+	bool "List of config names support"
+
+config IPQ_TINY2
+	select IPQ_TINY
+	bool "Enable tiny2 profile"
+
+config LIST_FUSE
+	bool "Enable fuse list command"
+	default y
+endif

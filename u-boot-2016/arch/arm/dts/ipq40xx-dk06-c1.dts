@@ -1,0 +1,141 @@
+/*
+ * Copyright (c) 2018, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq40xx-soc.dtsi"
+#include <dt-bindings/qcom/gpio-ipq40xx.h>
+#include "nand_gpio.dtsi"
+/ {
+	model ="QCA, IPQ40xx-DK06";
+	compatible = "qca,ipq40xx", "qca,ipq40xx-dk06";
+
+	machid = <0x8010005>;
+	ddr_size = <256>;
+	config_name = "config@ap.dk06.1-c1";
+
+	aliases {
+		console = "/serial@78af000";
+		xhci0 = "/xhci@8a00000";
+		xhci1 = "/xhci@6000000";
+	};
+
+	serial@78af000 {
+		serial_gpio {
+			gpio1 {
+				gpio = <16>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+
+			gpio2 {
+				gpio = <17>;
+				func = <1>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+		};
+	};
+
+	nand@79B0000 {
+		status = "ok";
+		nand_gpio {
+			gpio18 {
+				gpio = <61>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+		};
+	};
+
+	spi {
+		status = "ok";
+		spi_gpio {
+			gpio1 {
+				gpio = <12>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio2 {
+				gpio = <13>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio3 {
+				gpio = <14>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio4 {
+				gpio = <15>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+		};
+	};
+
+	edma_cfg {
+		unit = <0>;
+		/* Based on the enum for PSGMII phy interface from include/phy.h */
+		phy = <13>;
+		phy_name = "IPQ MDIO0";
+	};
+
+	ess-switch@c000000{
+		sw_gpio {
+			gpio1 {
+				gpio = <6>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio2 {
+				gpio = <7>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio3 {
+				gpio = <19>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_ENABLE>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+
+			gpio4 {
+				gpio = <52>;
+				pull = <GPIO_PULL_UP>;
+				vm = <GPIO_VM_ENABLE>;
+				pu_res = <GPIO_PULL_RES2>;
+			};
+		};
+	};
+};
+

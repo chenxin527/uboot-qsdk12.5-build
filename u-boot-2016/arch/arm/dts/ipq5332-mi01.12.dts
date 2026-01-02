@@ -1,0 +1,284 @@
+/*
+ * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
+ *
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq5332-soc.dtsi"
+/ {
+	machid = <0x8060202>;
+	config_name = "config@mi01.12", "config-mi01.12", "config@rdp479", "config-rdp479";
+
+	aliases {
+		console = "/serial@78AF000";
+		nand = "/nand-controller@79B0000";
+		mmc = "/sdhci@7804000";
+		usb0 = "/xhci@8a00000";
+		i2c0 = "/i2c@78B6000";
+		pci0 = "/pci@20000000";
+		pci1 = "/pci@18000000";
+	};
+
+	serial@78AF000 {
+		status = "ok";
+		serial_gpio {
+			blsp0_uart_rx {
+				gpio = <18>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+			};
+			blsp0_uart_tx {
+				gpio = <19>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	spi {
+		spi_gpio {
+			blsp0_spi_clk {
+				gpio = <14>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			blsp0_spi_mosi {
+				gpio = <15>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+			blsp0_spi_miso {
+				gpio = <16>;
+				func = <1>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_8MA>;
+			};
+			blsp0_spi_cs {
+				gpio = <17>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	i2c@78B6000 {
+		i2c_gpio {
+			gpio1 {
+				gpio = <29>;
+				func = <3>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+
+			gpio2 {
+				gpio = <30>;
+				func = <3>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+				oe = <GPIO_OE_ENABLE>;
+			};
+		};
+	};
+
+	nand: nand-controller@79B0000 {
+		nand_gpio {
+			qspi_dat3 {
+				gpio = <8>;
+				func = <2>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat2 {
+				gpio = <9>;
+				func = <2>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat1 {
+				gpio = <10>;
+				func = <2>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_dat0 {
+				gpio = <11>;
+				func = <2>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_cs_n {
+				gpio = <12>;
+				func = <2>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+			};
+			qspi_clk {
+				gpio = <13>;
+				func = <2>;
+				pull = <GPIO_PULL_DOWN>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	mmc: sdhci@7804000 {
+		mmc_gpio {
+			emmc_dat3 {
+				gpio = <8>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat2 {
+				gpio = <9>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat1 {
+				gpio = <10>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_dat0 {
+				gpio = <11>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_cmd{
+				gpio = <12>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_8MA>;
+			};
+			emmc_clk{
+				gpio = <13>;
+				func = <1>;
+				pull = <GPIO_NO_PULL>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	pci0: pci@20000000 {
+		status = "ok";
+		perst_gpio = <38>;
+		lane = <1>;
+		pci_gpio {
+			pci_rst {
+				gpio = <38>;
+				pull = <GPIO_PULL_UP>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	pci1: pci@18000000 {
+		status = "ok";
+		perst_gpio = <47>;
+		lane = <2>;
+		pci_gpio {
+			pci_rst {
+				gpio = <47>;
+				pull = <GPIO_PULL_UP>;
+				oe = <GPIO_OE_ENABLE>;
+				drvstr = <GPIO_8MA>;
+			};
+		};
+	};
+
+	ess-switch {
+		switch_mac_mode0 = <PORT_WRAPPER_SGMII_PLUS>;
+		switch_mac_mode1 = <PORT_WRAPPER_10GBASE_R>;
+		qca808x_gpio = <51>;
+		qca808x_gpio_cnt = <1>;
+		qca8084_switch_enable = <1>;
+		sfp_gpio = <24>;
+		sfp_gpio_cnt = <1>;
+
+		mdio_gpio {
+			mdc1 {
+				gpio = <27>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_2MA>;
+			};
+			mdio {
+				gpio = <28>;
+				func = <1>;
+				pull = <GPIO_PULL_UP>;
+				drvstr = <GPIO_2MA>;
+			};
+		};
+
+		port_phyinfo {
+			port@0 {
+				phy_address = <1>;
+				uniphy_id = <0>;
+				phy_type = <QCA8084_PHY_TYPE>;
+				uniphy_mode = <PORT_WRAPPER_SGMII_PLUS>;
+			};
+			port@1 {
+				phy_type = <SFP_PHY_TYPE>;
+				uniphy_id = <1>;
+				uniphy_mode = <PORT_WRAPPER_10GBASE_R>;
+			};
+		};
+
+		qca8084_swt_info {
+			switch_mac_mode0 = <PORT_WRAPPER_SGMII_PLUS>;
+			switch_mac_mode1 = <PORT_WRAPPER_SGMII_PLUS>;
+
+			port@0 {
+				phy_address = <0xff>;
+				phy_type = <UNUSED_PHY_TYPE>;
+				forced-speed = <2500>;
+				forced-duplex = <1>;
+			};
+			port@1 {
+				phy_address = <1>;
+				phy_type = <QCA8084_PHY_TYPE>;
+			};
+			port@2 {
+				phy_address = <2>;
+				phy_type = <QCA8084_PHY_TYPE>;
+			};
+			port@3 {
+				phy_address = <3>;
+				phy_type = <QCA8084_PHY_TYPE>;
+			};
+			port@4 {
+				phy_address = <0x4>;
+				phy_type = <QCA8084_PHY_TYPE>;
+			};
+			port@5 {
+				phy_address = <0xff>;
+				phy_type = <UNUSED_PHY_TYPE>;
+				forced-speed = <2500>;
+				forced-duplex = <1>;
+			};
+		};
+	};
+};

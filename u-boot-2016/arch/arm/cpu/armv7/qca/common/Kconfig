@@ -1,0 +1,6 @@
+config QCA_COMMON
+	bool "QCA Common IPs"
+
+config SKIP_RESET
+	bool "Skip reset after crash dump"
+	default n

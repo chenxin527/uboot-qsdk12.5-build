@@ -1,0 +1,49 @@
+/*
+ * Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq806x-soc.dtsi"
+/ {
+	model ="QCA, IPQ806x-AK01_1XX";
+	compatible = "qca,ipq806x", "qca,ipq806x-ak01";
+	machid = <5020>;
+	config_name = "config@ak01";
+
+	aliases {
+		console = "/serial@16340000";
+		nand = "/nand@1A600000";
+	};
+
+	ak01_gmac_reset_gpio {
+		gpio32 {
+			gpio = <32>;
+			func = <0>;
+			out = <GPIO_OUT_LOW>;
+			pull = <GPIO_NO_PULL>;
+			drvstr = <GPIO_2MA>;
+			oe = <GPIO_OE_DISABLE>;
+		};
+	};
+
+	ak01_gmac_config_gpio {
+		gpio32 {
+			gpio = <32>;
+			func = <0>;
+			out = <GPIO_OUT_HIGH>;
+			pull = <GPIO_PULL_UP>;
+			drvstr = <GPIO_12MA>;
+			oe = <GPIO_OE_ENABLE>;
+		};
+	};
+
+};

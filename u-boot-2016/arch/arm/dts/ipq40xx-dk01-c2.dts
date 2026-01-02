@@ -1,0 +1,36 @@
+/*
+ * Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+#include "ipq40xx-dk01.dtsi"
+/ {
+	machid = <0x8010100>;
+	ddr_size = <256>;
+	spi_nand_available = <1>;
+	config_name = "config@ap.dk01.1-c2";
+
+	spi {
+		spi0 {
+			cs1 {
+				gpio59_CS {
+					gpio = <59>;
+					out  = <GPIO_OUTPUT>;
+					pull = <GPIO_PULL_UP>;
+					drvstr = <GPIO_10MA>;
+					oe = <GPIO_OE_ENABLE>;
+
+				};
+			};
+		};
+	};
+};
