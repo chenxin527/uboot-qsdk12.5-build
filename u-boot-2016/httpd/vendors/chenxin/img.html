@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMG 更新</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='0.95em' font-size='75' text-anchor='middle'>💿</text></svg>">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>U-Boot 管理器</h2>
+        </div>
+
+        <div class="nav-links">
+            <ul>
+                <li>
+                    <a href="index.html">
+                        <span class="nav-icon">📦</span>
+                        <span>固件更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="art.html">
+                        <span class="nav-icon">📡</span>
+                        <span>ART 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="cdt.html">
+                        <span class="nav-icon">⚙️</span>
+                        <span>CDT 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="img.html" class="active">
+                        <span class="nav-icon">💿</span>
+                        <span>IMG 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="uboot.html">
+                        <span class="nav-icon">🔧</span>
+                        <span>U-Boot 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="uimage.html">
+                        <span class="nav-icon">🚀</span>
+                        <span>uImage 启动</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <span class="footer-icon">👨‍💻</span>
+                    <a href="https://github.com/chenxin527/" target="_blank">沉心</a>
+                    <span class="separator">•</span>
+                    <span class="footer-icon">🕐</span>
+                    2026.01.04
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/chenxin527/uboot-ipq60xx-emmc-build" target="_blank" title="项目源码">
+                        <span class="link-icon">📂</span>
+                    </a>
+                    <a href="https://github.com/chenxin527/" target="_blank" title="作者主页">
+                        <span class="link-icon">🏠</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <h1>IMG 更新</h1>
+            <p>此页面用于路由器的<strong> GPT (GUID Partition Table) 分区表或 eMMC 镜像（从 GPT 分区表开始）</strong>更新。<br>请选择要更新的文件并点击 <strong>更新 IMG</strong> 按钮。</p>
+
+            <form method="post" enctype="multipart/form-data">
+                <input type="file" name="img" required>
+                <input type="submit" value="更新 IMG">
+            </form>
+
+            <div class="warning-box">
+                <strong>提醒：</strong>
+                <ul>
+                    <li><strong>更新 IMG 是一个十分危险的操作，可能导致你的路由器无法启动！</strong></li>
+                    <li>在更新期间不要断开路由器的电源，如果更新顺利，设备将自动重启！</li>
+                    <li>你可以上传任何你想要上传的文件，所以一定要为你的设备选择合适的 IMG 文件！</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

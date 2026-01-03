@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta http-equiv="refresh" content="5; URL=index.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>找不到网页</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='0.94em' font-size='80' text-anchor='middle'>❓</text></svg>">
+    <style>
+        /* 倒计时指示器 */
+        .countdown {
+            font-size: 1.2rem;
+            color: #4CAF50;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>U-Boot 管理器</h2>
+        </div>
+
+        <div class="nav-links">
+            <ul>
+                <li>
+                    <a href="index.html">
+                        <span class="nav-icon">📦</span>
+                        <span>固件更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="art.html">
+                        <span class="nav-icon">📡</span>
+                        <span>ART 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="cdt.html">
+                        <span class="nav-icon">⚙️</span>
+                        <span>CDT 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="img.html">
+                        <span class="nav-icon">💿</span>
+                        <span>IMG 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="uboot.html">
+                        <span class="nav-icon">🔧</span>
+                        <span>U-Boot 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="uimage.html">
+                        <span class="nav-icon">🚀</span>
+                        <span>uImage 启动</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <span class="footer-icon">👨‍💻</span>
+                    <a href="https://github.com/chenxin527/" target="_blank">沉心</a>
+                    <span class="separator">•</span>
+                    <span class="footer-icon">🕐</span>
+                    2026.01.04
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/chenxin527/uboot-ipq60xx-emmc-build" target="_blank" title="项目源码">
+                        <span class="link-icon">📂</span>
+                    </a>
+                    <a href="https://github.com/chenxin527/" target="_blank" title="作者主页">
+                        <span class="link-icon">🏠</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="main-content">
+        <div class="error-container">
+            <div class="error-icon">🔍</div>
+            <h1 class="error-title">404 - 找不到网页</h1>
+
+            <div class="error-message-404">
+                你要查找的页面不存在！可能是输入了错误的 URL，或者页面已被移动或删除。
+            </div>
+
+            <div class="countdown" id="countdown">
+                页面将在 <span id="timer">5</span> 秒后自动跳转到首页，<a href="index.html">点击此处</a> 立即返回
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* 倒计时功能 */
+        let seconds = 5;
+        const countdownElement = document.getElementById('timer');
+
+        const countdownInterval = setInterval(function() {
+            seconds--;
+            countdownElement.textContent = seconds;
+        }, 1000);
+    </script>
+</body>
+</html>

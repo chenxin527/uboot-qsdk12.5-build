@@ -33,7 +33,10 @@
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-#define CONFIG_SYS_BOOTM_LEN		0x4000000
+/* Adjust uncompressed size of uImage to 0xF000000 Bytes (240 MBytes).
+ * 0x50000000 - 0x41000000 = 0xF000000
+ */
+#define CONFIG_SYS_BOOTM_LEN		0xF000000
 
 #define CONFIG_ENV_SIZE_MAX		(256 << 10) /* 256 KB */
 
@@ -273,7 +276,7 @@ extern loff_t board_env_size;
 #define CONFIG_BOOTARGS			"console=ttyMSM0,115200n8"
 #define QCA_ROOT_FS_PART_NAME		"rootfs"
 
-#define CONFIG_BOOTDELAY		2
+#define CONFIG_BOOTDELAY		3
 
 #define CONFIG_MTD_DEVICE
 #define CONFIG_CMD_MTDPARTS
@@ -322,9 +325,9 @@ extern loff_t board_env_size;
 #define CONFIG_CMD_DHCP
 #define CONFIG_MII
 #define CONFIG_CMD_MII
-#define CONFIG_IPADDR		192.168.10.10
+#define CONFIG_IPADDR		192.168.1.1
 #define CONFIG_NETMASK		255.255.255.0
-#define CONFIG_SERVERIP		192.168.10.1
+#define CONFIG_SERVERIP		192.168.1.2
 #define CONFIG_CMD_TFTPPUT
 #define CONFIG_IPQ_MDIO			1
 #define CONFIG_IPQ_ETH_INIT_DEFER
@@ -368,6 +371,8 @@ extern loff_t board_env_size;
 #define IPQ_UBI_VOL_WRITE_SUPPORT
 #define CONFIG_IPQ_TZT
 #define CONFIG_IPQ_FDT_FIXUP
+#define CONFIG_CMD_HTTPD
+#define CONFIG_CMD_IMI
 
 #define CONFIG_LIST_OF_CONFIG_NAMES_SUPPORT
 

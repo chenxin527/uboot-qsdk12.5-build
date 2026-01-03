@@ -12,6 +12,10 @@
 #include <cli.h>
 #include <console.h>
 #include <version.h>
+#if defined(CONFIG_CMD_HTTPD)
+#include <asm/arch-qca-common/gpio.h>
+#include <ipq_api.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -84,6 +88,10 @@ void main_loop(void)
 #if defined(CONFIG_UPDATE_TFTP)
 	update_tftp(0UL, NULL, NULL);
 #endif /* CONFIG_UPDATE_TFTP */
+
+#if defined(CONFIG_CMD_HTTPD)
+	check_button_is_pressed();
+#endif
 
 	s = bootdelay_process();
 #ifndef CONFIG_REDUCE_FOOTPRINT

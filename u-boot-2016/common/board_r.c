@@ -65,6 +65,10 @@
 #include <asm/arch/mmu.h>
 #endif
 
+#if defined(CONFIG_CMD_HTTPD)
+#include <asm/arch-qca-common/gpio.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_SPARC)
@@ -549,6 +553,11 @@ static int initr_enable_interrupts(void)
 static int initr_ethaddr(void)
 {
 	bd_t *bd = gd->bd;
+
+#if defined(CONFIG_CMD_HTTPD)
+	ipq_btn_init();
+	ipq_led_init();
+#endif
 
 	/* kept around for legacy kernels only ... ignore the next section */
 	eth_getenv_enetaddr("ethaddr", bd->bi_enetaddr);

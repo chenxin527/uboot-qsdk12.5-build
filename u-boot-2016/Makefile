@@ -700,6 +700,7 @@ libs-$(CONFIG_HAS_POST) += post/
 libs-y += test/
 libs-y += test/dm/
 libs-$(CONFIG_UT_ENV) += test/env/
+libs-$(CONFIG_CMD_HTTPD) += httpd/
 
 libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 
@@ -1393,6 +1394,11 @@ $(version_h): include/config/uboot.release FORCE
 
 $(timestamp_h): $(srctree)/Makefile FORCE
 	$(call filechk,timestamp.h)
+
+#if defined(CONFIG_CMD_HTTPD)
+	sed -i "s/[0-9]\{4\}\.[0-9]\{2\}\.[0-9]\{2\}/`date +%4Y.%m.%d`/g" $(CURDIR)/httpd/vendors/chenxin/*.html
+	cd $(srctree)/httpd; ./vendors/makefsdatac; cd -
+#endif
 
 # ---------------------------------------------------------------------------
 quiet_cmd_cpp_lds = LDS     $@

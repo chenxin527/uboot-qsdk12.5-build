@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更新失败</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='1.0em' font-size='70' text-anchor='middle'>❌</text></svg>">
+    <style>
+        .return_to_home {
+            font-size: 1.2rem;
+            color: #4CAF50;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>U-Boot 管理器</h2>
+        </div>
+
+        <div class="nav-links">
+            <ul>
+                <li>
+                    <a href="index.html">
+                        <span class="nav-icon">📦</span>
+                        <span>固件更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="art.html">
+                        <span class="nav-icon">📡</span>
+                        <span>ART 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="cdt.html">
+                        <span class="nav-icon">⚙️</span>
+                        <span>CDT 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="img.html">
+                        <span class="nav-icon">💿</span>
+                        <span>IMG 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="uboot.html">
+                        <span class="nav-icon">🔧</span>
+                        <span>U-Boot 更新</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="uimage.html">
+                        <span class="nav-icon">🚀</span>
+                        <span>uImage 启动</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <span class="footer-icon">👨‍💻</span>
+                    <a href="https://github.com/chenxin527/" target="_blank">沉心</a>
+                    <span class="separator">•</span>
+                    <span class="footer-icon">🕐</span>
+                    2026.01.04
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/chenxin527/uboot-ipq60xx-emmc-build" target="_blank" title="项目源码">
+                        <span class="link-icon">📂</span>
+                    </a>
+                    <a href="https://github.com/chenxin527/" target="_blank" title="作者主页">
+                        <span class="link-icon">🏠</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="main-content">
+        <div class="error-container">
+            <div class="error-icon">⚠️</div>
+            <h1 class="error-title">更新失败</h1>
+
+            <div class="error-message">
+                <strong>可能原因：</strong>
+                1. 选择了错误的文件（文件类型不对 / 文件过大或过小）。<br>
+                2. 尝试在不被允许的未知 FLASH 类型 / 大小的设备上更新 ART / CDT / IMG / U-Boot。<br>
+                <br>
+                <strong>一些建议：</strong>
+                1. 选择正确的文件并重试。<br>
+                2. 与提供文件的作者联系。<br>
+                3. 在 U-Boot 串口控制台中获取更多信息。
+            </div>
+
+            <div class="return_to_home">
+                <a href="index.html">点击此处</a> 返回首页
+            </div>
+        </div>
+    </div>
+</body>
+</html>

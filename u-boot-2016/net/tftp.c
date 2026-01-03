@@ -15,6 +15,10 @@
 #ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
 #include <flash.h>
 #endif
+#if defined(CONFIG_CMD_HTTPD)
+#include <asm/gpio.h>
+#include <ipq_api.h>
+#endif
 
 /* Well known TFTP port # */
 #define WELL_KNOWN_PORT	69
@@ -279,6 +283,10 @@ static void show_block_marker(void)
 			putc('#');
 		else if ((tftp_cur_block % (10 * HASHES_PER_LINE)) == 0)
 			puts("\n\t ");
+#if defined(CONFIG_CMD_HTTPD)
+		else if ((tftp_cur_block % (10 * 40)) == 0)
+			led_toggle("power_led");
+#endif
 	}
 }
 
@@ -337,6 +345,9 @@ static void tftp_complete(void)
 			time_start * 1000, "/s");
 	}
 	puts("\ndone\n");
+#if defined(CONFIG_CMD_HTTPD)
+	led_on("power_led");
+#endif
 	net_set_state(NETLOOP_SUCCESS);
 }
 

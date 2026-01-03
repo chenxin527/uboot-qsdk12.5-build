@@ -14,6 +14,24 @@
 
 static int netboot_common(enum proto_t, cmd_tbl_t *, int, char * const []);
 
+#if defined(CONFIG_CMD_HTTPD)
+static int do_httpd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
+	if (argc < 2)
+		return CMD_RET_USAGE;
+	net_httpd_ip = string_to_ip(argv[1]);
+	if (net_httpd_ip.s_addr == 0)
+		return CMD_RET_USAGE;
+	net_copy_ip(&net_ip, &net_httpd_ip);
+	if (net_loop(HTTPD) < 0) {
+		printf("httpd failed; host %s is not alive\n", argv[1]);
+		return CMD_RET_FAILURE;
+	}
+	printf("host %s is alive\n", argv[1]);
+	return CMD_RET_SUCCESS;
+}
+U_BOOT_CMD(httpd, 2, 1, do_httpd, "start www server for firmware recovery with [localAddress]\n", NULL);
+#endif
+
 #ifndef CONFIG_CMD_DISABLE_BOOTP
 static int do_bootp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
