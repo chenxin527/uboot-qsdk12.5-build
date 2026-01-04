@@ -287,7 +287,9 @@ compile_all_targets() {
     compile_target_after_cache_clean "ipq60xx" "jdcloud_re-cs-07"  "ipq6018_jdcloud_re_cs_07"
     compile_target_after_cache_clean "ipq60xx" "jdcloud_re-ss-01"  "ipq6018_jdcloud_re_ss_01"
     compile_target_after_cache_clean "ipq60xx" "link_nn6000"       "ipq6018_link_nn6000"
+    compile_target_after_cache_clean "ipq60xx" "philips_ly1800"    "ipq6018_philips_ly1800"
     compile_target_after_cache_clean "ipq60xx" "redmi_ax5-jdcloud" "ipq6018_redmi_ax5_jdcloud"
+    compile_target_after_cache_clean "ipq60xx" "sy_y6010"          "ipq6018_sy_y6010"
 
     log_message "所有设备编译完成!"
 }
@@ -304,7 +306,9 @@ show_help() {
     echo "  build_re-cs-07          编译 JDCloud ER1"
     echo "  build_re-ss-01          编译 JDCloud AX1800 Pro (Arthur)"
     echo "  build_nn6000            编译 Link NN6000 (V1 & V2)"
+    echo "  build_ly1800            编译 Philips LY1800"
     echo "  build_ax5-jdcloud       编译 Redmi AX5 JDCloud"
+    echo "  build_y6010             编译 SY Y6010"
     echo "  build_all               编译所有支持的设备"
 }
 
@@ -346,8 +350,16 @@ case "$1" in
         compile_single_target "ipq60xx" "link_nn6000" "ipq6018_link_nn6000"
         ;;
 
+    "build_ly1800")
+        compile_single_target "ipq60xx" "philips_ly1800" "ipq6018_philips_ly1800"
+        ;;
+
     "build_ax5-jdcloud")
         compile_single_target "ipq60xx" "redmi_ax5-jdcloud" "ipq6018_redmi_ax5_jdcloud"
+        ;;
+
+    "build_y6010")
+        compile_single_target "ipq60xx" "sy_y6010" "ipq6018_sy_y6010"
         ;;
 
     "build_all")

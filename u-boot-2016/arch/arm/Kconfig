@@ -804,10 +804,20 @@ config TARGET_IPQ6018_LINK_NN6000
     help
         Support for Link NN6000 (V1 & V2) board
 
+config TARGET_IPQ6018_PHILIPS_LY1800
+    bool "Philips LY1800"
+    help
+        Support for Philips LY1800 board
+
 config TARGET_IPQ6018_REDMI_AX5_JDCLOUD
     bool "Redmi AX5 JDCloud"
     help
         Support for Redmi AX5 JDCloud board
+
+config TARGET_IPQ6018_SY_Y6010
+    bool "SY Y6010"
+    help
+        Support for SY Y6010 board
 
 endchoice
 
