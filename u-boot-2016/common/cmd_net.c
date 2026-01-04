@@ -11,6 +11,9 @@
 #include <common.h>
 #include <command.h>
 #include <net.h>
+#if defined(CONFIG_DHCPD)
+#include <net/dhcpd.h>
+#endif
 
 static int netboot_common(enum proto_t, cmd_tbl_t *, int, char * const []);
 
@@ -22,10 +25,16 @@ static int do_httpd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
 	if (net_httpd_ip.s_addr == 0)
 		return CMD_RET_USAGE;
 	net_copy_ip(&net_ip, &net_httpd_ip);
+#if defined(CONFIG_DHCPD)
+	dhcpd_start();
+#endif
 	if (net_loop(HTTPD) < 0) {
 		printf("httpd failed; host %s is not alive\n", argv[1]);
 		return CMD_RET_FAILURE;
 	}
+#if defined(CONFIG_DHCPD)
+	dhcpd_stop();
+#endif
 	printf("host %s is alive\n", argv[1]);
 	return CMD_RET_SUCCESS;
 }

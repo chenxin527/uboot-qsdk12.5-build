@@ -113,6 +113,9 @@
 #include "../httpd/uip_arp.h"
 #include "httpd.h"
 #endif
+#if defined(CONFIG_DHCPD)
+#include <net/dhcpd.h>
+#endif
 #include <ipq_api.h>
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -448,6 +451,15 @@ restart:
 	 */
 	debug_cond(DEBUG_INT_STATE, "--- net_loop Init\n");
 	net_init_loop();
+
+#if defined(CONFIG_DHCPD)
+	/*
+	 * net_init() clears UDP handlers on first call.
+	 * For web failsafe (HTTPD), enable the minimal DHCP server after init.
+	 */
+	if (protocol == HTTPD)
+		dhcpd_start();
+#endif
 
 	switch (net_check_prereq(protocol)) {
 	case 1:
@@ -1092,6 +1104,26 @@ static void receive_icmp(struct ip_udp_hdr *ip, int len,
 	}
 }
 
+#if defined(CONFIG_DHCPD)
+static int is_dhcp_packet(struct ethernet_hdr *et, int len)
+{
+    u16 eth_proto = ntohs(et->et_protlen);
+
+    if (eth_proto == PROT_IP && len >= ETHER_HDR_SIZE + IP_UDP_HDR_SIZE) {
+        struct ip_udp_hdr *ip = (struct ip_udp_hdr *)((uchar *)et + ETHER_HDR_SIZE);
+
+        if (ip->ip_p == IPPROTO_UDP) {
+            u16 dport = ntohs(ip->udp_dst);
+            u16 sport = ntohs(ip->udp_src);
+
+            // DHCP使用端口67(服务器)和68(客户端)
+            return (dport == 67 || sport == 68 || dport == 68 || sport == 67);
+        }
+    }
+    return 0;
+}
+#endif
+
 void net_process_received_packet(uchar *in_packet, int len)
 {
 	struct ethernet_hdr *et;
@@ -1115,11 +1147,16 @@ void net_process_received_packet(uchar *in_packet, int len)
 		return;
 
 #if defined(CONFIG_CMD_HTTPD)
-	if (webfailsafe_is_running) {
+# if defined(CONFIG_DHCPD)
+	if (webfailsafe_is_running && !is_dhcp_packet(et, len))
+# else
+	if (webfailsafe_is_running)
+# endif /* CONFIG_DHCPD */
+	{
 		NetReceiveHttpd(in_packet, len);
 		return;
 	}
-#endif
+#endif /* CONFIG_CMD_HTTPD */
 
 #ifdef CONFIG_API
 	if (push_packet) {
