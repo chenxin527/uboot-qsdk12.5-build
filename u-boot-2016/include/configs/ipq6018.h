@@ -371,6 +371,7 @@ extern loff_t board_env_size;
 #define IPQ_UBI_VOL_WRITE_SUPPORT
 #define CONFIG_IPQ_TZT
 #define CONFIG_IPQ_FDT_FIXUP
+#define CONFIG_CMD_BOOTCONFIG
 #define CONFIG_CMD_HTTPD
 #define CONFIG_CMD_IMI
 #define CONFIG_CMD_UNTAR
