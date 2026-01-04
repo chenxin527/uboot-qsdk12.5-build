@@ -6,6 +6,7 @@
 #include <part.h>
 #include <mmc.h>
 #include <sdhci.h>
+#include <cmd_untar.h>
 
 #ifndef CONFIG_SDHCI_SUPPORT
 extern qca_mmc mmc_host;
@@ -288,8 +289,19 @@ int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_
 				case FW_TYPE_FACTORY_KERNEL12M:
 					return (image_greater_than_partition("0:HLOS", "kernel", 12*1024*1024) ||
 							image_greater_than_partition("rootfs", "rootfs", file_size_in_bytes - 12*1024*1024));
-				case FW_TYPE_SYSUPGRADE:
-					return 1;
+				case FW_TYPE_SYSUPGRADE: {
+					const void *kernel_addr, *rootfs_addr;
+					size_t kernel_size, rootfs_size;
+					if (parse_tar_image((void *)WEBFAILSAFE_UPLOAD_RAM_ADDRESS, (size_t)file_size_in_bytes,
+										&kernel_addr, &kernel_size,
+										&rootfs_addr, &rootfs_size)
+					) {
+						printf("\n\n* The upload file is NOT valid SYSUPGRADE IMAGE!! *");
+						return 1;
+					}
+					return (image_greater_than_partition("0:HLOS", "kernel", kernel_size) ||
+							image_greater_than_partition("rootfs", "rootfs", rootfs_size));
+				}
 				case FW_TYPE_JDCLOUD:
 					break;
 				default:
