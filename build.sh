@@ -1,32 +1,56 @@
 #!/bin/bash
 
-# 获取脚本所在目录的绝对路径
-if [ -n "$GITHUB_WORKSPACE" ]; then
-    # 在 GitHub Actions 环境中
-    SCRIPT_DIR="$GITHUB_WORKSPACE"
-    echo "检测到 GitHub Actions 环境，使用工作目录: $SCRIPT_DIR"
-else
-    # 本地环境
-    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-    echo "本地环境，使用脚本目录: $SCRIPT_DIR"
-fi
+# 获取并验证脚本环境
+setup_script_environment() {
+    local exit_cmd="exit 1"
 
-# 验证关键目录是否存在
-if [ ! -d "${SCRIPT_DIR}/u-boot-2016" ]; then
-    echo "错误: u-boot-2016 目录不存在"
-    echo "期望路径: ${SCRIPT_DIR}/u-boot-2016"
-    echo "当前目录内容:"
-    ls -la "$SCRIPT_DIR"
-    exit 1
-fi
+    # 判断执行方式，选择正确的退出命令
+    if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+        # 被 source 执行时使用 return
+        exit_cmd="return 1"
+    fi
 
-if [ ! -d "${SCRIPT_DIR}/staging_dir" ]; then
-    echo "错误: staging_dir 目录不存在"
-    echo "期望路径: ${SCRIPT_DIR}/../staging_dir"
-	echo "当前目录内容:"
-    ls -la "$SCRIPT_DIR"
-    exit 1
-fi
+    # 获取脚本所在目录的绝对路径（兼容两种执行方式）
+    if [ -n "$GITHUB_WORKSPACE" ]; then
+        # 在 GitHub Actions 环境中
+        SCRIPT_DIR="$GITHUB_WORKSPACE"
+        echo "检测到 GitHub Actions 环境，使用工作目录: $SCRIPT_DIR"
+    else
+        # 本地环境 - 使用 BASH_SOURCE 获取脚本真实路径
+        local script_source="${BASH_SOURCE[0]:-$0}"
+        SCRIPT_DIR="$(cd "$(dirname "$script_source")" && pwd)"
+    fi
+
+    # 验证关键目录是否存在
+    local missing_dir=""
+
+    if [ ! -d "${SCRIPT_DIR}/u-boot-2016" ]; then
+        echo "错误: u-boot-2016 目录不存在"
+        echo "期望路径: ${SCRIPT_DIR}/u-boot-2016"
+        missing_dir="u-boot-2016"
+    fi
+
+    if [ ! -d "${SCRIPT_DIR}/staging_dir" ]; then
+        if [ -n "$missing_dir" ]; then
+            missing_dir="$missing_dir 和 staging_dir"
+        else
+            missing_dir="staging_dir"
+        fi
+        echo "错误: staging_dir 目录不存在"
+        echo "期望路径: ${SCRIPT_DIR}/staging_dir"
+    fi
+
+    # 如果有缺失的目录，显示详细信息并退出
+    if [ -n "$missing_dir" ]; then
+        echo "缺失目录: $missing_dir"
+        echo "当前目录内容:"
+        ls -la "$SCRIPT_DIR"
+        eval "$exit_cmd"
+    fi
+
+    # 验证通过，返回成功
+    return 0
+}
 
 # 日志文件设置
 LOG_FILE=""
@@ -114,17 +138,6 @@ check_and_pad_file() {
         log_message "WARNING! 文件当前大小大于目标大小!"
         log_message "这可能导致刷写失败，建议检查编译配置"
     fi
-}
-
-# 文件检查函数（用于命令行调用）
-check_file_size() {
-    local file_path=$1
-    if [ -z "$file_path" ]; then
-        log_message "用法: $0 check_file_size <文件路径>"
-        return 1
-    fi
-
-    check_and_pad_file "$file_path" "手动检查"
 }
 
 # 清理编译过程中产生的缓存
@@ -281,12 +294,11 @@ compile_all_targets() {
 
 # 帮助文档函数
 show_help() {
-    echo "用法: $0 [选项]"
+    echo "用法: ${BASH_SOURCE[0]} [选项]"
     echo ""
     echo "选项:"
     echo "  help                    显示此帮助信息"
-    echo "  setup_env               仅设置编译环境"
-	echo "  check_file_size <文件>  检查并调整文件大小至 640 KB (655360 Bytes)"
+    echo "  setup_env               仅设置编译环境 (需使用 source 执行 ${BASH_SOURCE[0]})"
     echo "  clean_cache             清理编译过程中产生的缓存"
     echo "  build_re-cs-02          编译 JDCloud AX6600 (Athena)"
     echo "  build_re-cs-07          编译 JDCloud ER1"
@@ -296,16 +308,20 @@ show_help() {
     echo "  build_all               编译所有支持的设备"
 }
 
+# 以上是函数定义，脚本从这里开始执行
+
+# 获取并验证脚本环境
+setup_script_environment
+
 # 主逻辑 - 使用 case 语句
 case "$1" in
     "setup_env")
+        if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+            echo "要在当前 shell 中设置编译环境，请执行: source ${BASH_SOURCE[0]} setup_env"
+            exit 1
+        fi
         setup_build_env
   		echo "编译环境设置完成"
-        ;;
-
-    "check_file_size")
-        # 对于非编译操作，不设置日志文件
-        check_file_size "$2"
         ;;
 
     "clean_cache")
@@ -344,8 +360,13 @@ case "$1" in
 
     *)
         echo "错误: 未知选项 '$1'"
-        echo "使用 '$0 help' 查看可用选项"
-        exit 1
+        echo "使用 '${BASH_SOURCE[0]} help' 查看可用选项"
+        if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+            # 被 source 执行时使用 return
+            return 1
+        else
+            exit 1
+        fi
         ;;
 esac
 
