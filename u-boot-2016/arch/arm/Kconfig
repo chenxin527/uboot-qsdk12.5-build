@@ -775,6 +775,45 @@ config ARCH_ROCKCHIP
 
 endchoice
 
+# IPQ6018 设备选择 ===
+if ARCH_IPQ6018
+
+choice
+    prompt "IPQ6018 Board Selection"
+    default TARGET_IPQ6018_JDCLOUD_RE_SS_01
+    help
+        Select which IPQ6018 boards to include in U-Boot
+
+config TARGET_IPQ6018_JDCLOUD_RE_CS_02
+    bool "JDCloud AX6600 (Athena)"
+    help
+        Support for JDCloud AX6600 (Athena) board
+
+config TARGET_IPQ6018_JDCLOUD_RE_CS_07
+    bool "JDCloud ER1"
+    help
+        Support for JDCloud ER1 board
+
+config TARGET_IPQ6018_JDCLOUD_RE_SS_01
+    bool "JDCloud AX1800 Pro (Arthur)"
+    help
+        Support for JDCloud AX1800 Pro (Arthur) board
+
+config TARGET_IPQ6018_LINK_NN6000
+    bool "Link NN6000 (V1 & V2)"
+    help
+        Support for Link NN6000 (V1 & V2) board
+
+config TARGET_IPQ6018_REDMI_AX5_JDCLOUD
+    bool "Redmi AX5 JDCloud"
+    help
+        Support for Redmi AX5 JDCloud board
+
+endchoice
+
+endif  # ARCH_IPQ6018
+# IPQ6018 设备选择 ===
+
 source "arch/arm/mach-at91/Kconfig"
 
 source "arch/arm/mach-bcm283x/Kconfig"

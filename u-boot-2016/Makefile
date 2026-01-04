@@ -1395,10 +1395,10 @@ $(version_h): include/config/uboot.release FORCE
 $(timestamp_h): $(srctree)/Makefile FORCE
 	$(call filechk,timestamp.h)
 
-#if defined(CONFIG_CMD_HTTPD)
+ifdef CONFIG_CMD_HTTPD
 	sed -i "s/[0-9]\{4\}\.[0-9]\{2\}\.[0-9]\{2\}/`date +%4Y.%m.%d`/g" $(CURDIR)/httpd/vendors/chenxin/*.html
 	cd $(srctree)/httpd; ./vendors/makefsdatac; cd -
-#endif
+endif
 
 # ---------------------------------------------------------------------------
 quiet_cmd_cpp_lds = LDS     $@
