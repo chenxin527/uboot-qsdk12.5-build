@@ -1281,16 +1281,9 @@ void ipq_uboot_fdt_fixup(void)
 			add_config_entry("config@cp01-c5");
 			add_config_entry("config-cp01-c5");
 			break;
-#if defined(CONFIG_TARGET_IPQ6018_PHILIPS_LY1800)
+#if defined(CONFIG_TARGET_IPQ6018_PHILIPS_LY1800) || \
+	defined(CONFIG_TARGET_IPQ6018_SY_Y6010)
 		case MACH_TYPE_IPQ6018_PHILIPS_LY1800:
-			add_config_entry("config@cp01-c1");
-			add_config_entry("config-cp01-c1");
-			add_config_entry("config@cp03-c1");
-			add_config_entry("config-cp03-c1");
-			add_config_entry("config@cp03-c2");
-			add_config_entry("config-cp03-c2");
-#endif
-#if defined(CONFIG_TARGET_IPQ6018_SY_Y6010)
 		case MACH_TYPE_IPQ6018_SY_Y6010:
 			add_config_entry("config@cp01-c1");
 			add_config_entry("config-cp01-c1");
@@ -1298,6 +1291,7 @@ void ipq_uboot_fdt_fixup(void)
 			add_config_entry("config-cp03-c1");
 			add_config_entry("config@cp03-c2");
 			add_config_entry("config-cp03-c2");
+			break;
 #endif
 		default:
 			add_config_list_from_fdt();
