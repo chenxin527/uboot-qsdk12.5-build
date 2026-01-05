@@ -25,8 +25,6 @@
 #include <ubi_uboot.h>
 #include <fdtdec.h>
 #include <asm/arch-qca-common/qpic_nand.h>
-#include <nand.h>
-
 
 DECLARE_GLOBAL_DATA_PTR;
 #ifndef CONFIG_SDHCI_SUPPORT
