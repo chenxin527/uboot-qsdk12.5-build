@@ -31,19 +31,22 @@ enum {
 
 enum {
     FW_TYPE_UNKNOWN = -1,
-    FW_TYPE_CDT,
-    FW_TYPE_ELF,
-    FW_TYPE_EMMC,
-    FW_TYPE_FACTORY_KERNEL6M,
-    FW_TYPE_FACTORY_KERNEL12M,
-    FW_TYPE_FIT,
-    FW_TYPE_JDCLOUD,
-    FW_TYPE_SYSUPGRADE,
-    FW_TYPE_UBI,
+    FW_TYPE_CDT,                /* CDT 文件 */
+    FW_TYPE_ELF,                /* ELF 文件 (除了 U-Boot 外, SBL1, QSEE, RPM, DEVCFG 等也是 ELF 文件) */
+    FW_TYPE_EMMC,               /* eMMC 的 GPT 分区表或镜像，只要开头有GPT信息即可 */
+    FW_TYPE_FACTORY_KERNEL6M,   /* Factory 格式的固件 (Kernel 大小: 6MB) */
+    FW_TYPE_FACTORY_KERNEL12M,  /* Factory 格式的固件 (Kernel 大小: 12MB) */
+    FW_TYPE_FIT,                /* FIT Image，包括 Factory Image 和 FIT uImage */
+    FW_TYPE_JDCLOUD,            /* JDCloud 官方原厂固件 */
+    FW_TYPE_SYSUPGRADE,         /* Sysupgrade Tar 格式的固件 */
+    FW_TYPE_UBI,                /* UBI 固件（针对 NAND 机型） */
 };
 
-#define CONFIG_LOADADDR                                 0x44000000
+/*
+* 为了可以上传更大的固件，将上传地址从 0x44000000 改为 0x50000000 避免内存 crash 重启
+*/
 #define WEBFAILSAFE_UPLOAD_RAM_ADDRESS                  0x50000000
+#define CONFIG_LOADADDR                                 0x44000000
 
 #define WEBFAILSAFE_UPLOAD_PADDING_SIZE_IN_BYTES        (1024*1024)
 #define WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES          (640*1024)

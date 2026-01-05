@@ -128,25 +128,28 @@ static int httpd_findandstore_firstchunk(void) {
 		// ok, we have data in this packet!
 		// find upgrade type
 
+		printf("Upgrade type: ");
+
 		if ((char *)strstr((char *)start, "name=\"firmware\"")) {
-			printf("Upgrade type: firmware\n");
+			printf("firmware\n");
 			webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE;
 		} else if ((char *)strstr((char *)start, "name=\"uboot\"")) {
 			webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_UBOOT;
-			printf("Upgrade type: U-Boot\n");
+			printf("U-Boot\n");
 		} else if ((char *)strstr((char *)start, "name=\"art\"")) {
-			printf("Upgrade type: ART\n");
+			printf("ART\n");
 			webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_ART;
 		} else if ((char *)strstr((char *)start, "name=\"img\"")) {
-			printf("Upgrade type: IMG\n");
+			printf("IMG\n");
 			webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_IMG;
 		} else if ((char *)strstr((char *)start, "name=\"cdt\"")) {
-			printf("Upgrade type: CDT\n");
+			printf("CDT\n");
 			webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_CDT;
 		} else if ((char *)strstr((char *)start, "name=\"uImage\"")) {
-			printf("Upgrade type: uImage\n");
+			printf("uImage\n");
 			webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_UIMAGE;
 		} else {
+			printf("Unknown\n");
 			printf("## Error: input name not found!\n");
 			return 0;
 		}

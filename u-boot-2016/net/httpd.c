@@ -17,6 +17,10 @@
 #include <asm/gpio.h>
 #include <asm/arch-qca-common/smem.h>
 
+static char buf[576];
+static uint32_t flash_type;
+static qca_smem_flash_info_t *sfi = &qca_smem_flash_info;
+static int fw_type;
 static int arptimer = 0;
 struct in_addr net_httpd_ip;
 
@@ -96,151 +100,6 @@ void printChecksumMd5(int address, unsigned int size)
 {
 }
 #endif
-
-int do_http_upgrade(const ulong size, const int upgrade_type) {
-	char buf[576];
-	qca_smem_flash_info_t *sfi = &qca_smem_flash_info;
-	int fw_type = check_fw_type((void *)WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
-
-	//printf checksum if defined
-	printChecksumMd5(WEBFAILSAFE_UPLOAD_RAM_ADDRESS, size);
-
-	// include/ipq_api.h
-	// WEBFAILSAFE_UPLOAD_RAM_ADDRESS = 0x50000000 为了可以上传更大的固件，将上传地址从 0x44000000 改为 0x50000000 避免内存 crash 重启
-	// FW_TYPE_EMMC	              这个是 eMMC 的 GPT 分区表或镜像，只要开头有GPT信息即可
-	// FW_TYPE_JDCLOUD	          这个是 JDCloud 官方原厂固件
-	// FW_TYPE_UBI	              这个是 UBI 固件，eMMC 没有 UBI 固件
-	// FW_TYPE_CDT                这个是 CDT 文件
-	// FW_TYPE_ELF                这个是 ELF 文件 (除了 U-Boot 外, SBL1, QSEE, RPM, DEVCFG 也是 ELF 文件)
-	// FW_TYPE_FACTORY_KERNEL6M	  这个是 Factory 格式的固件 (Kernel 大小: 6MB)
-	// FW_TYPE_FACTORY_KERNEL12M  这个是 Factory 格式的固件 (Kernel 大小: 12MB)
-	// FW_TYPE_FIT                这个是 FIT Image，包括 Factory Image 和 FIT uImage
-
-	switch (upgrade_type) {
-		case WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE:
-			if (sfi->flash_type == SMEM_BOOT_MMC_FLASH) {
-				if (fw_type == FW_TYPE_FACTORY_KERNEL6M) {
-					printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n* FIRMWARE KERNEL SIZE: 6MB  *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
-					sprintf(buf,
-						"flash 0:HLOS 0x%lx 0x%lx && flash rootfs 0x%lx 0x%lx && "
-						"bootconfig set primary",
-						// factory.bin 由 kernel + rootfs 组成，其中 kernel 固定 6MB 大小
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)0x600000,
-						(ulong)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS + 0x600000),
-						(ulong)(size - 0x600000));
-				} else if (fw_type == FW_TYPE_FACTORY_KERNEL12M) {
-					printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n* FIRMWARE KERNEL SIZE: 12MB *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
-					sprintf(buf,
-						"flash 0:HLOS 0x%lx 0x%lx && flash rootfs 0x%lx 0x%lx && "
-						"bootconfig set primary",
-						// factory.bin 由 kernel + rootfs 组成，其中 kernel 固定 12MB 大小
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)0xC00000,
-						(ulong)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS + 0xC00000),
-						(ulong)(size - 0xC00000));
-				} else if (fw_type == FW_TYPE_JDCLOUD) {
-					printf("\n\n*******************************\n* JDCLOUD FIRMWARE UPGRADING  *\n*  DO NOT POWER OFF DEVICE!   *\n*******************************\n\n");
-					sprintf(buf,
-						"imxtract 0x%lx hlos-0cc33b23252699d495d79a843032498bfa593aba && flash 0:HLOS $fileaddr $filesize && imxtract 0x%lx rootfs-f3c50b484767661151cfb641e2622703e45020fe && flash rootfs $fileaddr $filesize && imxtract 0x%lx wififw-45b62ade000c18bfeeb23ae30e5a6811eac05e2f && flash 0:WIFIFW $fileaddr $filesize && flasherase rootfs_data && "
-						"bootconfig set primary",
-						// 执行 imxtract 时不带目标地址，则不进行复制，但会修改环境变量 $fileaddr $filesize，可以直接用
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
-				} else if (fw_type == FW_TYPE_SYSUPGRADE) {
-					printf("\n\n*********************************\n* SYSUPGRADE FIRMWARE UPGRADING *\n*   DO NOT POWER OFF DEVICE!    *\n*********************************\n\n");
-					sprintf(buf,
-						"untar 0x%lx 0x%lx && flash 0:HLOS $kernel_addr $kernel_size && flash rootfs $rootfs_addr $rootfs_size && "
-						"bootconfig set primary",
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)size);
-				} else {
-					return (-1);
-				}
-			} else {
-				printf("\n\n* Update FIRMWARE is NOT supported for this FLASH TYPE yet!! *\n\n");
-				return (-1);
-			}
-			break;
-		case WEBFAILSAFE_UPGRADE_TYPE_UBOOT:
-			printf("\n\n****************************\n*     U-BOOT UPGRADING     *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
-			if (sfi->flash_type == SMEM_BOOT_MMC_FLASH) {
-				if (fw_type == FW_TYPE_ELF) {
-					sprintf(buf,
-						"flash 0:APPSBL 0x%lx $filesize && flash 0:APPSBL_1 0x%lx $filesize",
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
-				} else {
-					return (-1);
-				}
-			} else {
-				printf("\n\n* Update U-boot is NOT supported for this FLASH TYPE yet!! *\n\n");
-				return (-1);
-			}
-			break;
-		case WEBFAILSAFE_UPGRADE_TYPE_ART:
-			printf("\n\n****************************\n*      ART  UPGRADING      *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
-			if (sfi->flash_type == SMEM_BOOT_MMC_FLASH) {
-				sprintf(buf,
-					"flash 0:ART 0x%lx $filesize",
-					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
-			} else {
-				printf("\n\n* Update ART is NOT supported for this FLASH TYPE yet!! *\n\n");
-				return (-1);
-			}
-			break;
-		case WEBFAILSAFE_UPGRADE_TYPE_IMG:
-			printf("\n\n****************************\n*      IMG  UPGRADING      *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
-			if (sfi->flash_type == SMEM_BOOT_MMC_FLASH) {
-				if (fw_type == FW_TYPE_EMMC) {
-					sprintf(buf,
-						"mmc erase 0x0 0x%lx && mmc write 0x%lx 0x0 0x%lx",
-						(ulong)((size - 1) / 512 + 1),
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)((size - 1) / 512 + 1));
-				} else {
-					return (-1);
-				}
-			} else {
-				printf("\n\n* Update IMG is NOT supported for this FLASH TYPE yet!! *\n\n");
-				return (-1);
-			}
-			break;
-		case WEBFAILSAFE_UPGRADE_TYPE_CDT:
-			printf("\n\n****************************\n*      CDT  UPGRADING      *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
-			if (sfi->flash_type == SMEM_BOOT_MMC_FLASH) {
-				if (fw_type == FW_TYPE_CDT) {
-					sprintf(buf,
-						"flash 0:CDT 0x%lx $filesize && flash 0:CDT_1 0x%lx $filesize",
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
-				} else {
-					return (-1);
-				}
-			} else {
-				printf("\n\n* Update CDT is NOT supported for this FLASH TYPE yet!! *\n\n");
-				return (-1);
-			}
-			break;
-		case WEBFAILSAFE_UPGRADE_TYPE_UIMAGE:
-			printf("\n\n****************************\n*      UIMAGE BOOTING      *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
-			if (fw_type == FW_TYPE_FIT) {
-				sprintf(buf,
-					"bootm 0x%lx",
-					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
-			} else {
-				return (-1);
-			}
-			break;
-		default:
-			return (-1);
-	}
-
-	printf("Executing: %s\n\n", buf);
-
-	return (run_command(buf, 0));
-}
 
 // info about current progress of failsafe mode
 int do_http_progress(const int state) {
@@ -334,5 +193,217 @@ void HttpdHandler(void) {
 	if (++arptimer == 20) {
 		uip_arp_timer();
 		arptimer = 0;
+	}
+}
+
+static uint32_t check_flash_type(void) {
+	switch (sfi->flash_type) {
+		default:
+			return sfi->flash_type;
+	}
+}
+
+static int do_firmware_upgrade(const ulong size) {
+	switch (flash_type) {
+		case SMEM_BOOT_MMC_FLASH:
+			switch (fw_type) {
+				case FW_TYPE_FACTORY_KERNEL6M:
+					printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n* FIRMWARE KERNEL SIZE: 6MB  *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
+					sprintf(buf,
+						"flash 0:HLOS 0x%lx 0x%lx && flash rootfs 0x%lx 0x%lx && "
+						"bootconfig set primary",
+						// factory.bin 由 kernel + rootfs 组成，其中 kernel 固定 6MB 大小
+						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+						(ulong)0x600000,
+						(ulong)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS + 0x600000),
+						(ulong)(size - 0x600000)
+					);
+					break;
+				case FW_TYPE_FACTORY_KERNEL12M:
+					printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n* FIRMWARE KERNEL SIZE: 12MB *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
+					sprintf(buf,
+						"flash 0:HLOS 0x%lx 0x%lx && flash rootfs 0x%lx 0x%lx && "
+						"bootconfig set primary",
+						// factory.bin 由 kernel + rootfs 组成，其中 kernel 固定 12MB 大小
+						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+						(ulong)0xC00000,
+						(ulong)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS + 0xC00000),
+						(ulong)(size - 0xC00000)
+					);
+					break;
+				case FW_TYPE_JDCLOUD:
+					printf("\n\n*******************************\n* JDCLOUD FIRMWARE UPGRADING  *\n*  DO NOT POWER OFF DEVICE!   *\n*******************************\n\n");
+					sprintf(buf,
+						"imxtract 0x%lx hlos-0cc33b23252699d495d79a843032498bfa593aba && flash 0:HLOS $fileaddr $filesize && imxtract 0x%lx rootfs-f3c50b484767661151cfb641e2622703e45020fe && flash rootfs $fileaddr $filesize && imxtract 0x%lx wififw-45b62ade000c18bfeeb23ae30e5a6811eac05e2f && flash 0:WIFIFW $fileaddr $filesize && flasherase rootfs_data && "
+						"bootconfig set primary",
+						// 执行 imxtract 时不带目标地址，则不进行复制，但会修改环境变量 $fileaddr $filesize，可以直接用
+						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS
+					);
+					break;
+				case FW_TYPE_SYSUPGRADE:
+					printf("\n\n*********************************\n* SYSUPGRADE FIRMWARE UPGRADING *\n*   DO NOT POWER OFF DEVICE!    *\n*********************************\n\n");
+					sprintf(buf,
+						"untar 0x%lx 0x%lx && flash 0:HLOS $kernel_addr $kernel_size && flash rootfs $rootfs_addr $rootfs_size && "
+						"bootconfig set primary",
+						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+						(ulong)size
+					);
+					break;
+				default:
+					return (-1);
+			}
+			break;
+		default:
+			printf("\n\n* Update FIRMWARE is NOT supported for this FLASH TYPE yet!! *\n\n");
+			return (-1);
+	}
+
+	printf("Executing: %s\n\n", buf);
+
+	return (run_command(buf, 0));
+}
+
+static int do_uboot_upgrade(const ulong size) {
+
+	printf("\n\n****************************\n*     U-BOOT UPGRADING     *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
+
+	switch (flash_type) {
+		case SMEM_BOOT_MMC_FLASH:
+			if (fw_type == FW_TYPE_ELF) {
+				sprintf(buf,
+					"flash 0:APPSBL 0x%lx $filesize && flash 0:APPSBL_1 0x%lx $filesize",
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS
+				);
+			} else {
+				return (-1);
+			}
+			break;
+		default:
+			printf("\n\n* Update U-boot is NOT supported for this FLASH TYPE yet!! *\n\n");
+			return (-1);
+	}
+
+	printf("Executing: %s\n\n", buf);
+
+	return (run_command(buf, 0));
+}
+
+static int do_art_upgrade(const ulong size) {
+
+	printf("\n\n****************************\n*      ART  UPGRADING      *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
+
+	switch (flash_type) {
+		case SMEM_BOOT_MMC_FLASH:
+			sprintf(buf,
+				"flash 0:ART 0x%lx $filesize",
+				(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS
+			);
+			break;
+		default:
+			printf("\n\n* Update ART is NOT supported for this FLASH TYPE yet!! *\n\n");
+			return (-1);
+	}
+
+	printf("Executing: %s\n\n", buf);
+
+	return (run_command(buf, 0));
+}
+
+static int do_cdt_upgrade(const ulong size) {
+
+	printf("\n\n****************************\n*      CDT  UPGRADING      *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
+
+	switch (flash_type) {
+		case SMEM_BOOT_MMC_FLASH:
+			if (fw_type == FW_TYPE_CDT) {
+				sprintf(buf,
+					"flash 0:CDT 0x%lx $filesize && flash 0:CDT_1 0x%lx $filesize",
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS
+				);
+			} else {
+				return (-1);
+			}
+			break;
+		default:
+			printf("\n\n* Update CDT is NOT supported for this FLASH TYPE yet!! *\n\n");
+			return (-1);
+	}
+
+	printf("Executing: %s\n\n", buf);
+
+	return (run_command(buf, 0));
+}
+
+static int do_img_upgrade(const ulong size) {
+
+	printf("\n\n****************************\n*      IMG  UPGRADING      *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
+
+	switch (flash_type) {
+		case SMEM_BOOT_MMC_FLASH:
+			if (fw_type == FW_TYPE_EMMC) {
+				sprintf(buf,
+					"mmc erase 0x0 0x%lx && mmc write 0x%lx 0x0 0x%lx",
+					(ulong)((size - 1) / 512 + 1),
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)((size - 1) / 512 + 1)
+				);
+			} else {
+				return (-1);
+			}
+			break;
+		default:
+			printf("\n\n* Update IMG is NOT supported for this FLASH TYPE yet!! *\n\n");
+			return (-1);
+	}
+
+	printf("Executing: %s\n\n", buf);
+
+	return (run_command(buf, 0));
+}
+
+static int do_uimage_upgrade(const ulong size) {
+
+	printf("\n\n****************************\n*      UIMAGE BOOTING      *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
+
+	if (fw_type == FW_TYPE_FIT) {
+		sprintf(buf,
+			"bootm 0x%lx",
+			(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS
+		);
+	} else {
+		return (-1);
+	}
+
+	printf("Executing: %s\n\n", buf);
+
+	return (run_command(buf, 0));
+}
+
+int do_http_upgrade(const ulong size, const int upgrade_type) {
+	//printf checksum if defined
+	printChecksumMd5(WEBFAILSAFE_UPLOAD_RAM_ADDRESS, size);
+
+	fw_type = check_fw_type((void *)WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
+	flash_type = check_flash_type();
+
+	switch (upgrade_type) {
+		case WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE:
+			return do_firmware_upgrade(size);
+		case WEBFAILSAFE_UPGRADE_TYPE_UBOOT:
+			return do_uboot_upgrade(size);
+		case WEBFAILSAFE_UPGRADE_TYPE_ART:
+			return do_art_upgrade(size);
+		case WEBFAILSAFE_UPGRADE_TYPE_CDT:
+			return do_cdt_upgrade(size);
+		case WEBFAILSAFE_UPGRADE_TYPE_IMG:
+			return do_img_upgrade(size);
+		case WEBFAILSAFE_UPGRADE_TYPE_UIMAGE:
+			return do_uimage_upgrade(size);
+		default:
+			return (-1);
 	}
 }
