@@ -2,14 +2,31 @@
 #define WPS_BUTTON_IS_PRESSED          0
 #define SCREEN_BUTTON_IS_PRESSED       0
 
+/* 有 WPS 键的机型*/
 #if defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_02) || \
     defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_SS_01) || \
     defined(CONFIG_TARGET_IPQ6018_LINK_NN6000)
 #define HAS_WPS_KEY 1
 #endif
 
+/* 有 SCREEN 键的机型*/
 #if defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_02)
 #define HAS_SCREEN_KEY 1
+#endif
+
+/* eMMC 机型*/
+#if defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_02) || \
+    defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_07) || \
+    defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_SS_01) || \
+    defined(CONFIG_TARGET_IPQ6018_LINK_NN6000) || \
+    defined(CONFIG_TARGET_IPQ6018_REDMI_AX5_JDCLOUD)
+#define ENABLE_EMMC_FLASH_MACHINE_SUPPORT 1
+#endif
+
+/* NOR + eMMC 机型*/
+#if defined(CONFIG_TARGET_IPQ6018_PHILIPS_LY1800) || \
+    defined(CONFIG_TARGET_IPQ6018_SY_Y6010)
+#define ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT 1
 #endif
 
 enum {
@@ -38,6 +55,8 @@ enum {
     FW_TYPE_FACTORY_KERNEL12M,  /* Factory 格式的固件 (Kernel 大小: 12MB) */
     FW_TYPE_FIT,                /* FIT Image，包括 Factory Image 和 FIT uImage */
     FW_TYPE_JDCLOUD,            /* JDCloud 官方原厂固件 */
+    FW_TYPE_MIBIB,              /* SPI-NOR 的 MIBIB 分区表 */
+    FW_TYPE_NOR,                /* SPI-NOR 的镜像，至少包含 SBL1 和 MIBIB */
     FW_TYPE_SYSUPGRADE,         /* Sysupgrade Tar 格式的固件 */
     FW_TYPE_UBI,                /* UBI 固件（针对 NAND 机型） */
 };
@@ -53,6 +72,20 @@ enum {
 #define WEBFAILSAFE_UPLOAD_ART_SIZE_IN_BYTES            (256*1024)
 #define WEBFAILSAFE_UPLOAD_ART_BIG_SIZE_IN_BYTES        (512*1024)
 #define WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES            (256*1024)
+
+#define WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES_NOR        (64*1024)
+#define WEBFAILSAFE_UPLOAD_MIBIB_SIZE_IN_BYTES_NOR      (64*1024)
+
+/*
+ * MIBIB for SPI-NOR or NAND FLASH
+ * MBN Header Magic: AC 9F 56 FE 7A 12 7F CD
+ * Partition Table offset for SPI-NOR: 0x100, for NAND: 0x800.
+ * Partition Table Header Magic: AA 73 EE 55 DB BD 5E E3
+ */
+#define HEADER_MAGIC_MBN1        0xFE569FAC
+#define HEADER_MAGIC_MBN2        0xCD7F127A
+#define HEADER_MAGIC_PTABLE1     0x55EE73AA
+#define HEADER_MAGIC_PTABLE2     0xE35EBDDB
 
 #define HEADER_MAGIC_CDT         0x00544443
 #define HEADER_MAGIC_ELF         0x464C457F

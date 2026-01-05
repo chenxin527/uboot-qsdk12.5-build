@@ -198,6 +198,11 @@ void HttpdHandler(void) {
 
 static uint32_t check_flash_type(void) {
 	switch (sfi->flash_type) {
+		case SMEM_BOOT_SPI_FLASH:
+			if (sfi->flash_secondary_type == SMEM_BOOT_MMC_FLASH)
+				return SMEM_BOOT_NORPLUSEMMC;
+			else
+				return SMEM_BOOT_SPI_FLASH;
 		default:
 			return sfi->flash_type;
 	}
@@ -205,7 +210,10 @@ static uint32_t check_flash_type(void) {
 
 static int do_firmware_upgrade(const ulong size) {
 	switch (flash_type) {
+#if defined(ENABLE_EMMC_FLASH_MACHINE_SUPPORT) || \
+	defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
 		case SMEM_BOOT_MMC_FLASH:
+		case SMEM_BOOT_NORPLUSEMMC:
 			switch (fw_type) {
 				case FW_TYPE_FACTORY_KERNEL6M:
 					printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n* FIRMWARE KERNEL SIZE: 6MB  *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
@@ -255,6 +263,7 @@ static int do_firmware_upgrade(const ulong size) {
 					return (-1);
 			}
 			break;
+#endif
 		default:
 			printf("\n\n* Update FIRMWARE is NOT supported for this FLASH TYPE yet!! *\n\n");
 			return (-1);
@@ -271,6 +280,8 @@ static int do_uboot_upgrade(const ulong size) {
 
 	switch (flash_type) {
 		case SMEM_BOOT_MMC_FLASH:
+		case SMEM_BOOT_NORPLUSEMMC:
+		case SMEM_BOOT_SPI_FLASH:
 			if (fw_type == FW_TYPE_ELF) {
 				sprintf(buf,
 					"flash 0:APPSBL 0x%lx $filesize && flash 0:APPSBL_1 0x%lx $filesize",
@@ -297,6 +308,8 @@ static int do_art_upgrade(const ulong size) {
 
 	switch (flash_type) {
 		case SMEM_BOOT_MMC_FLASH:
+		case SMEM_BOOT_NORPLUSEMMC:
+		case SMEM_BOOT_SPI_FLASH:
 			sprintf(buf,
 				"flash 0:ART 0x%lx $filesize",
 				(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS
@@ -318,6 +331,8 @@ static int do_cdt_upgrade(const ulong size) {
 
 	switch (flash_type) {
 		case SMEM_BOOT_MMC_FLASH:
+		case SMEM_BOOT_NORPLUSEMMC:
+		case SMEM_BOOT_SPI_FLASH:
 			if (fw_type == FW_TYPE_CDT) {
 				sprintf(buf,
 					"flash 0:CDT 0x%lx $filesize && flash 0:CDT_1 0x%lx $filesize",
@@ -339,22 +354,49 @@ static int do_cdt_upgrade(const ulong size) {
 }
 
 static int do_img_upgrade(const ulong size) {
-
-	printf("\n\n****************************\n*      IMG  UPGRADING      *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
-
 	switch (flash_type) {
+#if defined(ENABLE_EMMC_FLASH_MACHINE_SUPPORT)
 		case SMEM_BOOT_MMC_FLASH:
 			if (fw_type == FW_TYPE_EMMC) {
+				printf("\n\n****************************\n*    EMMC IMG UPGRADING    *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
 				sprintf(buf,
 					"mmc erase 0x0 0x%lx && mmc write 0x%lx 0x0 0x%lx",
 					(ulong)((size - 1) / 512 + 1),
 					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
 					(ulong)((size - 1) / 512 + 1)
 				);
+			}
+			break;
+#endif
+#if defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
+		case SMEM_BOOT_NORPLUSEMMC:
+			if (fw_type == FW_TYPE_EMMC) {
+				printf("\n\n****************************\n*    EMMC IMG UPGRADING    *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
+				sprintf(buf,
+					"mmc erase 0x0 0x%lx && mmc write 0x%lx 0x0 0x%lx",
+					(ulong)((size - 1) / 512 + 1),
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)((size - 1) / 512 + 1)
+				);
+			} else if (fw_type == FW_TYPE_MIBIB) {
+				printf("\n\n****************************\n*      MIBIB UPGRADING     *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
+				sprintf(buf,
+					"sf probe 0 && sf update 0x%lx 0xc0000 0x%lx",
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)size
+				);
+			} else if (fw_type == FW_TYPE_NOR) {
+				printf("\n\n****************************\n*   SPI-NOR IMG UPGRADING  *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
+				sprintf(buf,
+					"sf probe 0 && sf update 0x%lx 0x0 0x%lx",
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)size
+				);
 			} else {
 				return (-1);
 			}
 			break;
+#endif
 		default:
 			printf("\n\n* Update IMG is NOT supported for this FLASH TYPE yet!! *\n\n");
 			return (-1);

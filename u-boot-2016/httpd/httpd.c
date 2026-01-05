@@ -117,6 +117,7 @@ static int httpd_findandstore_firstchunk(void) {
 	char *start = NULL;
 	char *end = NULL;
 	int art_size = 0;
+	int cdt_size = 0;
 
 	if (!boundary_value)
 		return 0;
@@ -195,8 +196,15 @@ static int httpd_findandstore_firstchunk(void) {
 						}
 						break;
 					case WEBFAILSAFE_UPGRADE_TYPE_CDT:
-						if (hs->upload_total > WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES) {
-							printf("## Error: wrong file size, cdt should be less than or equal to: %d bytes!\n", WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES);
+#if defined(ENABLE_EMMC_FLASH_MACHINE_SUPPORT)
+						cdt_size = WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES;
+#elif defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
+						cdt_size = WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES_NOR;
+#else
+						cdt_size = WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES;
+#endif
+						if (hs->upload_total > cdt_size) {
+							printf("## Error: wrong file size, cdt should be less than or equal to: %d bytes!\n", cdt_size);
 							webfailsafe_upload_failed = 1;
 							file_too_big = 1;
 						}

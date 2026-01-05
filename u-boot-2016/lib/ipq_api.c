@@ -186,7 +186,12 @@ int check_fw_type(void *address) {
 		case HEADER_MAGIC_CDT:
 			return FW_TYPE_CDT;
 		case HEADER_MAGIC_ELF:
-			return FW_TYPE_ELF;
+			if (*((u32 *)(address + 0xc0000)) == HEADER_MAGIC_MBN1 &&
+				*((u32 *)(address + 0xc0004)) == HEADER_MAGIC_MBN2
+			)
+				return FW_TYPE_NOR;
+			else
+				return FW_TYPE_ELF;
 		case HEADER_MAGIC_FIT:
 			if (*((u32 *)(address + 0x5C)) == HEADER_MAGIC_JDCLOUD)
 				return FW_TYPE_JDCLOUD;
@@ -196,6 +201,10 @@ int check_fw_type(void *address) {
 				return FW_TYPE_FACTORY_KERNEL12M;
 			else
 				return FW_TYPE_FIT;
+		case HEADER_MAGIC_MBN1:
+			if (*header_magic2 == HEADER_MAGIC_MBN2)
+				return FW_TYPE_MIBIB;
+			return FW_TYPE_UNKNOWN;
 		case HEADER_MAGIC_SYSUPGRADE1:
 			if (*header_magic2 == HEADER_MAGIC_SYSUPGRADE2)
 				return FW_TYPE_SYSUPGRADE;
@@ -233,6 +242,12 @@ void print_fw_type(int fw_type) {
 			break;
 		case FW_TYPE_JDCLOUD:
 			printf("JDCLOUD OFFICIAL FIRMWARE");
+			break;
+		case FW_TYPE_MIBIB:
+			printf("MIBIB");
+			break;
+		case FW_TYPE_NOR:
+			printf("SPI-NOR IMGAGE");
 			break;
 		case FW_TYPE_SYSUPGRADE:
 			printf("SYSUPGRADE FIRMWARE");
@@ -283,6 +298,8 @@ int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_
 	switch (upgrade_type) {
 		case WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE:
 			switch (fw_type) {
+#if defined(ENABLE_EMMC_FLASH_MACHINE_SUPPORT) || \
+	defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
 				case FW_TYPE_FACTORY_KERNEL6M:
 					return (image_greater_than_partition("0:HLOS", "kernel", 6*1024*1024) ||
 							image_greater_than_partition("rootfs", "rootfs", file_size_in_bytes - 6*1024*1024));
@@ -304,6 +321,7 @@ int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_
 				}
 				case FW_TYPE_JDCLOUD:
 					break;
+#endif
 				default:
 					printf("\n\n* The upload file is NOT supported FIRMWARE!! *\n\n");
 					print_fw_type(fw_type);
@@ -318,10 +336,28 @@ int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_
 			}
 			break;
 		case WEBFAILSAFE_UPGRADE_TYPE_IMG:
-			if (fw_type != FW_TYPE_EMMC) {
-				printf("\n\n* The upload file is NOT supported EMMC IMG!! *\n\n");
-				print_fw_type(fw_type);
-				return 1;
+			switch (fw_type) {
+#if defined(ENABLE_EMMC_FLASH_MACHINE_SUPPORT) || \
+	defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
+				case FW_TYPE_EMMC:
+					break;
+#endif
+#if defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
+				case FW_TYPE_MIBIB: {
+					int mibib_size = WEBFAILSAFE_UPLOAD_MIBIB_SIZE_IN_BYTES_NOR;
+					if (file_size_in_bytes > mibib_size) {
+						printf("\n\n## Error: wrong file size, mibib should be less than or equal to: %d bytes!", mibib_size);
+						return 1;
+					}
+					break;
+				}
+				case FW_TYPE_NOR:
+					break;
+#endif
+				default:
+					printf("\n\n* The upload file is NOT supported IMG!! *\n\n");
+					print_fw_type(fw_type);
+					return 1;
 			}
 			break;
 		case WEBFAILSAFE_UPGRADE_TYPE_CDT:
