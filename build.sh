@@ -271,12 +271,22 @@ compile_single_target() {
     local target_name=$2
     local config_name=$3
 
+    # 开始编译前获取 HTML 文件中的日期 (只提取 index.html 中的日期，请确保所有 HTML 文件中的日期一致)
+    local original_date=$(grep -oE '[0-9]{4}\.[0-9]{2}\.[0-9]{2}' "$SCRIPT_DIR/u-boot-2016/httpd/vendors/chenxin/index.html" | head -1)
+
     setup_build_info
+
     compile_target_after_cache_clean "$arch_name" "$target_name" "$config_name"
+
+    # 恢复所有 HTML 文件中的日期，防止污染 Git 工作区
+    sed -i "s/[0-9]\{4\}\.[0-9]\{2\}\.[0-9]\{2\}/$original_date/g" "$SCRIPT_DIR"/u-boot-2016/httpd/vendors/chenxin/*.html
 }
 
 # 编译所有目标
 compile_all_targets() {
+    # 开始编译前获取 HTML 文件中的日期 (只提取 index.html 中的日期，请确保所有 HTML 文件中的日期一致)
+    local original_date=$(grep -oE '[0-9]{4}\.[0-9]{2}\.[0-9]{2}' "$SCRIPT_DIR/u-boot-2016/httpd/vendors/chenxin/index.html" | head -1)
+
     # 一次性设置版本号，确保所有文件版本一致
     setup_build_info
 
@@ -290,6 +300,9 @@ compile_all_targets() {
     compile_target_after_cache_clean "ipq60xx" "philips_ly1800"    "ipq6018_philips_ly1800"
     compile_target_after_cache_clean "ipq60xx" "redmi_ax5-jdcloud" "ipq6018_redmi_ax5_jdcloud"
     compile_target_after_cache_clean "ipq60xx" "sy_y6010"          "ipq6018_sy_y6010"
+
+    # 恢复所有 HTML 文件中的日期，防止污染 Git 工作区
+    sed -i "s/[0-9]\{4\}\.[0-9]\{2\}\.[0-9]\{2\}/$original_date/g" "$SCRIPT_DIR"/u-boot-2016/httpd/vendors/chenxin/*.html
 
     log_message "所有设备编译完成!"
 }
