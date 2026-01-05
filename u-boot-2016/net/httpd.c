@@ -360,6 +360,8 @@ static int do_img_upgrade(const ulong size) {
 					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
 					(ulong)((size - 1) / 512 + 1)
 				);
+			} else {
+				return (-1);
 			}
 			break;
 #endif
