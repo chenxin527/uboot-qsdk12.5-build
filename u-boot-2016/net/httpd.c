@@ -210,57 +210,52 @@ static uint32_t check_flash_type(void) {
 
 static int do_firmware_upgrade(const ulong size) {
 	switch (flash_type) {
-#if defined(ENABLE_EMMC_FLASH_MACHINE_SUPPORT) || \
-	defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
+#if defined(MACHINE_FLASH_TYPE_EMMC) || \
+	defined(MACHINE_FLASH_TYPE_NORPLUSEMMC)
 		case SMEM_BOOT_MMC_FLASH:
 		case SMEM_BOOT_NORPLUSEMMC:
-			switch (fw_type) {
-				case FW_TYPE_FACTORY_KERNEL6M:
-					printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n* FIRMWARE KERNEL SIZE: 6MB  *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
-					sprintf(buf,
-						"flash 0:HLOS 0x%lx 0x%lx && flash rootfs 0x%lx 0x%lx && "
-						"bootconfig set primary",
-						// factory.bin 由 kernel + rootfs 组成，其中 kernel 固定 6MB 大小
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)0x600000,
-						(ulong)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS + 0x600000),
-						(ulong)(size - 0x600000)
-					);
-					break;
-				case FW_TYPE_FACTORY_KERNEL12M:
-					printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n* FIRMWARE KERNEL SIZE: 12MB *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
-					sprintf(buf,
-						"flash 0:HLOS 0x%lx 0x%lx && flash rootfs 0x%lx 0x%lx && "
-						"bootconfig set primary",
-						// factory.bin 由 kernel + rootfs 组成，其中 kernel 固定 12MB 大小
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)0xC00000,
-						(ulong)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS + 0xC00000),
-						(ulong)(size - 0xC00000)
-					);
-					break;
-				case FW_TYPE_JDCLOUD:
-					printf("\n\n*******************************\n* JDCLOUD FIRMWARE UPGRADING  *\n*  DO NOT POWER OFF DEVICE!   *\n*******************************\n\n");
-					sprintf(buf,
-						"imxtract 0x%lx hlos-0cc33b23252699d495d79a843032498bfa593aba && flash 0:HLOS $fileaddr $filesize && imxtract 0x%lx rootfs-f3c50b484767661151cfb641e2622703e45020fe && flash rootfs $fileaddr $filesize && imxtract 0x%lx wififw-45b62ade000c18bfeeb23ae30e5a6811eac05e2f && flash 0:WIFIFW $fileaddr $filesize && flasherase rootfs_data && "
-						"bootconfig set primary",
-						// 执行 imxtract 时不带目标地址，则不进行复制，但会修改环境变量 $fileaddr $filesize，可以直接用
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS
-					);
-					break;
-				case FW_TYPE_SYSUPGRADE:
-					printf("\n\n*********************************\n* SYSUPGRADE FIRMWARE UPGRADING *\n*   DO NOT POWER OFF DEVICE!    *\n*********************************\n\n");
-					sprintf(buf,
-						"untar 0x%lx 0x%lx && flash 0:HLOS $kernel_addr $kernel_size && flash rootfs $rootfs_addr $rootfs_size && "
-						"bootconfig set primary",
-						(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(ulong)size
-					);
-					break;
-				default:
-					return (-1);
+			if (fw_type == FW_TYPE_FACTORY_KERNEL6M) {
+				printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n* FIRMWARE KERNEL SIZE: 6MB  *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
+				sprintf(buf,
+					"flash 0:HLOS 0x%lx 0x%lx && flash rootfs 0x%lx 0x%lx && "
+					"bootconfig set primary",
+					// factory.bin 由 kernel + rootfs 组成，其中 kernel 固定 6MB 大小
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)0x600000,
+					(ulong)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS + 0x600000),
+					(ulong)(size - 0x600000)
+				);
+			} else if (fw_type == FW_TYPE_FACTORY_KERNEL12M) {
+				printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n* FIRMWARE KERNEL SIZE: 12MB *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
+				sprintf(buf,
+					"flash 0:HLOS 0x%lx 0x%lx && flash rootfs 0x%lx 0x%lx && "
+					"bootconfig set primary",
+					// factory.bin 由 kernel + rootfs 组成，其中 kernel 固定 12MB 大小
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)0xC00000,
+					(ulong)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS + 0xC00000),
+					(ulong)(size - 0xC00000)
+				);
+			} else if (fw_type == FW_TYPE_JDCLOUD) {
+				printf("\n\n*******************************\n* JDCLOUD FIRMWARE UPGRADING  *\n*  DO NOT POWER OFF DEVICE!   *\n*******************************\n\n");
+				sprintf(buf,
+					"imxtract 0x%lx hlos-0cc33b23252699d495d79a843032498bfa593aba && flash 0:HLOS $fileaddr $filesize && imxtract 0x%lx rootfs-f3c50b484767661151cfb641e2622703e45020fe && flash rootfs $fileaddr $filesize && imxtract 0x%lx wififw-45b62ade000c18bfeeb23ae30e5a6811eac05e2f && flash 0:WIFIFW $fileaddr $filesize && flasherase rootfs_data && "
+					"bootconfig set primary",
+					// 执行 imxtract 时不带目标地址，则不进行复制，但会修改环境变量 $fileaddr $filesize，可以直接用
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS
+				);
+			} else if (fw_type == FW_TYPE_SYSUPGRADE) {
+				printf("\n\n*********************************\n* SYSUPGRADE FIRMWARE UPGRADING *\n*   DO NOT POWER OFF DEVICE!    *\n*********************************\n\n");
+				sprintf(buf,
+					"untar 0x%lx 0x%lx && flash 0:HLOS $kernel_addr $kernel_size && flash rootfs $rootfs_addr $rootfs_size && "
+					"bootconfig set primary",
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)size
+				);
+			} else {
+				return (-1);
 			}
 			break;
 #endif
@@ -355,7 +350,7 @@ static int do_cdt_upgrade(const ulong size) {
 
 static int do_img_upgrade(const ulong size) {
 	switch (flash_type) {
-#if defined(ENABLE_EMMC_FLASH_MACHINE_SUPPORT)
+#if defined(MACHINE_FLASH_TYPE_EMMC)
 		case SMEM_BOOT_MMC_FLASH:
 			if (fw_type == FW_TYPE_EMMC) {
 				printf("\n\n****************************\n*    EMMC IMG UPGRADING    *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
@@ -368,7 +363,7 @@ static int do_img_upgrade(const ulong size) {
 			}
 			break;
 #endif
-#if defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
+#if defined(MACHINE_FLASH_TYPE_NORPLUSEMMC)
 		case SMEM_BOOT_NORPLUSEMMC:
 			if (fw_type == FW_TYPE_EMMC) {
 				printf("\n\n****************************\n*    EMMC IMG UPGRADING    *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");

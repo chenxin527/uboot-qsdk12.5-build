@@ -196,9 +196,9 @@ static int httpd_findandstore_firstchunk(void) {
 						}
 						break;
 					case WEBFAILSAFE_UPGRADE_TYPE_CDT:
-#if defined(ENABLE_EMMC_FLASH_MACHINE_SUPPORT)
+#if defined(MACHINE_FLASH_TYPE_EMMC)
 						cdt_size = WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES;
-#elif defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
+#elif defined(MACHINE_FLASH_TYPE_NORPLUSEMMC)
 						cdt_size = WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES_NOR;
 #else
 						cdt_size = WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES;

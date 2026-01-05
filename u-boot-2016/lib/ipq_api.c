@@ -298,8 +298,8 @@ int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_
 	switch (upgrade_type) {
 		case WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE:
 			switch (fw_type) {
-#if defined(ENABLE_EMMC_FLASH_MACHINE_SUPPORT) || \
-	defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
+#if defined(MACHINE_FLASH_TYPE_EMMC) || \
+	defined(MACHINE_FLASH_TYPE_NORPLUSEMMC)
 				case FW_TYPE_FACTORY_KERNEL6M:
 					return (image_greater_than_partition("0:HLOS", "kernel", 6*1024*1024) ||
 							image_greater_than_partition("rootfs", "rootfs", file_size_in_bytes - 6*1024*1024));
@@ -337,12 +337,12 @@ int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_
 			break;
 		case WEBFAILSAFE_UPGRADE_TYPE_IMG:
 			switch (fw_type) {
-#if defined(ENABLE_EMMC_FLASH_MACHINE_SUPPORT) || \
-	defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
+#if defined(MACHINE_FLASH_TYPE_EMMC) || \
+	defined(MACHINE_FLASH_TYPE_NORPLUSEMMC)
 				case FW_TYPE_EMMC:
 					break;
 #endif
-#if defined(ENABLE_NORPLUSEMMC_FLASH_MACHINE_SUPPORT)
+#if defined(MACHINE_FLASH_TYPE_NORPLUSEMMC)
 				case FW_TYPE_MIBIB: {
 					int mibib_size = WEBFAILSAFE_UPLOAD_MIBIB_SIZE_IN_BYTES_NOR;
 					if (file_size_in_bytes > mibib_size) {
