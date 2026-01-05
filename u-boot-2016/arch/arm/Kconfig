@@ -784,6 +784,11 @@ choice
     help
         Select which IPQ6018 boards to include in U-Boot
 
+config TARGET_IPQ6018_CMIOT_AX18
+    bool "CMIOT AX18"
+    help
+        Support for CMIOT AX18 board
+
 config TARGET_IPQ6018_JDCLOUD_RE_CS_02
     bool "JDCloud AX6600 (Athena)"
     help
@@ -809,6 +814,11 @@ config TARGET_IPQ6018_PHILIPS_LY1800
     help
         Support for Philips LY1800 board
 
+config TARGET_IPQ6018_QIHOO_360V6
+    bool "Qihoo 360V6"
+    help
+        Support for Qihoo 360V6 board
+
 config TARGET_IPQ6018_REDMI_AX5_JDCLOUD
     bool "Redmi AX5 JDCloud"
     help
@@ -818,6 +828,11 @@ config TARGET_IPQ6018_SY_Y6010
     bool "SY Y6010"
     help
         Support for SY Y6010 board
+
+config TARGET_IPQ6018_ZN_M2
+    bool "ZN M2"
+    help
+        Support for ZN M2 board
 
 endchoice
 

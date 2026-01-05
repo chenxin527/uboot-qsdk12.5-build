@@ -118,7 +118,7 @@ check_and_pad_file() {
         log_message "错误: 文件不存在: $file_path"
         return 1
     fi
-
+# nand 机型 1536 KB
     local current_size_bytes=$(stat -c%s "$file_path")
     local target_size_bytes=655360  # 640 KB = 655360 Bytes
 
@@ -293,13 +293,16 @@ compile_all_targets() {
     log_message "编译所有支持的设备"
 
     # 依次编译所有设备
+    compile_target_after_cache_clean "ipq60xx" "cmiot_ax18"        "ipq6018_cmiot_ax18"
     compile_target_after_cache_clean "ipq60xx" "jdcloud_re-cs-02"  "ipq6018_jdcloud_re_cs_02"
     compile_target_after_cache_clean "ipq60xx" "jdcloud_re-cs-07"  "ipq6018_jdcloud_re_cs_07"
     compile_target_after_cache_clean "ipq60xx" "jdcloud_re-ss-01"  "ipq6018_jdcloud_re_ss_01"
     compile_target_after_cache_clean "ipq60xx" "link_nn6000"       "ipq6018_link_nn6000"
     compile_target_after_cache_clean "ipq60xx" "philips_ly1800"    "ipq6018_philips_ly1800"
+    compile_target_after_cache_clean "ipq60xx" "qihoo_360v6"       "ipq6018_qihoo_360v6"
     compile_target_after_cache_clean "ipq60xx" "redmi_ax5-jdcloud" "ipq6018_redmi_ax5_jdcloud"
     compile_target_after_cache_clean "ipq60xx" "sy_y6010"          "ipq6018_sy_y6010"
+    compile_target_after_cache_clean "ipq60xx" "zn_m2"             "ipq6018_zn_m2"
 
     # 恢复所有 HTML 文件中的日期，防止污染 Git 工作区
     sed -i "s/[0-9]\{4\}\.[0-9]\{2\}\.[0-9]\{2\}/$original_date/g" "$SCRIPT_DIR"/u-boot-2016/httpd/vendors/chenxin/*.html
@@ -315,13 +318,16 @@ show_help() {
     echo "  help                    显示此帮助信息"
     echo "  setup_env               仅设置编译环境 (需使用 source 执行 ${BASH_SOURCE[0]})"
     echo "  clean_cache             清理编译过程中产生的缓存"
+    echo "  build_ax18              编译 CMIOT AX18"
     echo "  build_re-cs-02          编译 JDCloud AX6600 (Athena)"
     echo "  build_re-cs-07          编译 JDCloud ER1"
     echo "  build_re-ss-01          编译 JDCloud AX1800 Pro (Arthur)"
     echo "  build_nn6000            编译 Link NN6000 (V1 & V2)"
     echo "  build_ly1800            编译 Philips LY1800"
+    echo "  build_360v6             编译 Qihoo 360V6"
     echo "  build_ax5-jdcloud       编译 Redmi AX5 JDCloud"
     echo "  build_y6010             编译 SY Y6010"
+    echo "  build_m2                编译 ZN M2"
     echo "  build_all               编译所有支持的设备"
 }
 
@@ -347,6 +353,10 @@ case "$1" in
         echo "编译缓存清理完成!"
         ;;
 
+    "build_ax18")
+        compile_single_target "ipq60xx" "cmiot_ax18" "ipq6018_cmiot_ax18"
+        ;;
+
     "build_re-cs-02")
         compile_single_target "ipq60xx" "jdcloud_re-cs-02" "ipq6018_jdcloud_re_cs_02"
         ;;
@@ -367,12 +377,20 @@ case "$1" in
         compile_single_target "ipq60xx" "philips_ly1800" "ipq6018_philips_ly1800"
         ;;
 
+    "build_360v6")
+        compile_single_target "ipq60xx" "qihoo_360v6" "ipq6018_qihoo_360v6"
+        ;;
+
     "build_ax5-jdcloud")
         compile_single_target "ipq60xx" "redmi_ax5-jdcloud" "ipq6018_redmi_ax5_jdcloud"
         ;;
 
     "build_y6010")
         compile_single_target "ipq60xx" "sy_y6010" "ipq6018_sy_y6010"
+        ;;
+
+    "build_m2")
+        compile_single_target "ipq60xx" "zn_m2" "ipq6018_zn_m2"
         ;;
 
     "build_all")
