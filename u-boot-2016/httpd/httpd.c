@@ -118,6 +118,7 @@ static int httpd_findandstore_firstchunk(void) {
 	char *end = NULL;
 	int art_size = 0;
 	int cdt_size = 0;
+	int uboot_size = 0;
 
 	if (!boundary_value)
 		return 0;
@@ -175,16 +176,22 @@ static int httpd_findandstore_firstchunk(void) {
 				// has correct size (for every type of upgrade)
 				switch (webfailsafe_upgrade_type) {
 					case WEBFAILSAFE_UPGRADE_TYPE_UBOOT:
-						if (hs->upload_total > WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES) {
-							printf("## Error: wrong file size, uboot should be less than or equal to: %d bytes!\n", WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES);
+#if defined(MACHINE_FLASH_TYPE_NAND)
+						uboot_size = WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES_NAND;
+#else
+						uboot_size = WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES;
+#endif
+						if (hs->upload_total > uboot_size) {
+							printf("## Error: wrong file size, uboot should be less than or equal to: %d bytes!\n", uboot_size);
 							webfailsafe_upload_failed = 1;
 							file_too_big = 1;
 						}
 						break;
 					case WEBFAILSAFE_UPGRADE_TYPE_ART:
 #if defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_02) || \
-	defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_07)
-						// For JDCloud AX6600 (Athena) and JDCloud ER1, ART is 512 KiB
+	defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_07) || \
+	defined(MACHINE_FLASH_TYPE_NAND)
+						// For JDCloud AX6600 (Athena), JDCloud ER1 and NAND machine, ART is 512 KiB
 						art_size = WEBFAILSAFE_UPLOAD_ART_BIG_SIZE_IN_BYTES;
 #else
 						art_size = WEBFAILSAFE_UPLOAD_ART_SIZE_IN_BYTES;
@@ -198,10 +205,12 @@ static int httpd_findandstore_firstchunk(void) {
 					case WEBFAILSAFE_UPGRADE_TYPE_CDT:
 #if defined(MACHINE_FLASH_TYPE_EMMC)
 						cdt_size = WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES;
+#elif defined(MACHINE_FLASH_TYPE_NAND)
+						cdt_size = WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES_NAND;
 #elif defined(MACHINE_FLASH_TYPE_NORPLUSEMMC)
 						cdt_size = WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES_NOR;
 #else
-						cdt_size = WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES;
+	 					cdt_size = WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES;
 #endif
 						if (hs->upload_total > cdt_size) {
 							printf("## Error: wrong file size, cdt should be less than or equal to: %d bytes!\n", cdt_size);

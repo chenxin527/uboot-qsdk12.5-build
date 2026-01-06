@@ -71,7 +71,8 @@ enum {
     FW_TYPE_FACTORY_KERNEL12M,  /* Factory 格式的固件 (Kernel 大小: 12MB) */
     FW_TYPE_FIT,                /* FIT Image，包括 Factory Image 和 FIT uImage */
     FW_TYPE_JDCLOUD,            /* JDCloud 官方原厂固件 */
-    FW_TYPE_MIBIB,              /* SPI-NOR 的 MIBIB 分区表 */
+    FW_TYPE_MIBIB_NAND,         /* NAND 的 MIBIB 分区表 */
+    FW_TYPE_MIBIB_NOR,          /* SPI-NOR 的 MIBIB 分区表 */
     FW_TYPE_NAND,               /* NAND 的镜像，只需以 SBL1 开头即可 */
     FW_TYPE_NOR,                /* SPI-NOR 的镜像，至少包含 SBL1 和 MIBIB */
     FW_TYPE_SYSUPGRADE,         /* Sysupgrade Tar 格式的固件 */
@@ -110,8 +111,8 @@ enum {
  */
 #define HEADER_MAGIC_MBN1        0xFE569FAC
 #define HEADER_MAGIC_MBN2        0xCD7F127A
-#define HEADER_MAGIC_PTABLE1     0x55EE73AA
-#define HEADER_MAGIC_PTABLE2     0xE35EBDDB
+#define HEADER_MAGIC_MBN         0xCD7F127AFE569FAC
+#define HEADER_MAGIC_PTABLE      0xE35EBDDB55EE73AA
 
 /*
  * For NAND IMAGE, only check SBL1 Header: D1 DC 4B 84 34 10 D7 73

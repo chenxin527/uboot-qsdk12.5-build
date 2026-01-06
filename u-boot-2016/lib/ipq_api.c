@@ -7,6 +7,10 @@
 #include <mmc.h>
 #include <sdhci.h>
 #include <cmd_untar.h>
+#include <asm/arch-qca-common/smem.h>
+#include <linux/mtd/mtd.h>
+#include <nand.h>
+#include <ubi_uboot.h>
 
 #ifndef CONFIG_SDHCI_SUPPORT
 extern qca_mmc mmc_host;
@@ -186,9 +190,7 @@ int check_fw_type(void *address) {
 		case HEADER_MAGIC_CDT:
 			return FW_TYPE_CDT;
 		case HEADER_MAGIC_ELF:
-			if (*((u32 *)(address + 0xc0000)) == HEADER_MAGIC_MBN1 &&
-				*((u32 *)(address + 0xc0004)) == HEADER_MAGIC_MBN2
-			)
+			if (*((u64 *)(address + 0xC0000)) == HEADER_MAGIC_MBN)
 				return FW_TYPE_NOR;
 			else
 				return FW_TYPE_ELF;
@@ -202,8 +204,16 @@ int check_fw_type(void *address) {
 			else
 				return FW_TYPE_FIT;
 		case HEADER_MAGIC_MBN1:
-			if (*header_magic2 == HEADER_MAGIC_MBN2)
-				return FW_TYPE_MIBIB;
+			if (*header_magic2 == HEADER_MAGIC_MBN2) {
+				if (*((u64 *)(address + 0x100)) == HEADER_MAGIC_PTABLE)
+					return FW_TYPE_MIBIB_NOR;
+				else if (*((u64 *)(address + 0x800)) == HEADER_MAGIC_PTABLE)
+					return FW_TYPE_MIBIB_NAND;
+			}
+			return FW_TYPE_UNKNOWN;
+		case HEADER_MAGIC_SBL_NAND1:
+			if (*header_magic2 == HEADER_MAGIC_SBL_NAND2)
+				return FW_TYPE_NAND;
 			return FW_TYPE_UNKNOWN;
 		case HEADER_MAGIC_SYSUPGRADE1:
 			if (*header_magic2 == HEADER_MAGIC_SYSUPGRADE2)
@@ -243,8 +253,14 @@ void print_fw_type(int fw_type) {
 		case FW_TYPE_JDCLOUD:
 			printf("JDCLOUD OFFICIAL FIRMWARE");
 			break;
-		case FW_TYPE_MIBIB:
-			printf("MIBIB");
+		case FW_TYPE_MIBIB_NAND:
+			printf("MIBIB for NAND device");
+			break;
+		case FW_TYPE_MIBIB_NOR:
+			printf("MIBIB for SPI-NOR device");
+			break;
+		case FW_TYPE_NAND:
+			printf("NAND IMAGE");
 			break;
 		case FW_TYPE_NOR:
 			printf("SPI-NOR IMGAGE");
@@ -264,6 +280,7 @@ void print_fw_type(int fw_type) {
 }
 
 int image_greater_than_partition(char *part_name, char *file_name, ulong file_size_in_bytes) {
+#if defined(MACHINE_FLASH_TYPE_EMMC) || defined(MACHINE_FLASH_TYPE_NORPLUSEMMC)
     block_dev_desc_t *blk_dev;
     disk_partition_t disk_info = {0};
     ulong part_size_in_blocks = 0;
@@ -290,6 +307,25 @@ int image_greater_than_partition(char *part_name, char *file_name, ulong file_si
 			   file_name, file_size_in_bytes, part_name, part_size_in_blocks * disk_info.blksz);
         return 1;
     }
+#endif
+
+#if defined(MACHINE_FLASH_TYPE_NAND)
+	uint32_t part_size_in_bytes = 0;
+	uint32_t size_block, start_block;
+	qca_smem_flash_info_t *sfi = &qca_smem_flash_info;
+
+    if (smem_getpart(part_name, &start_block, &size_block)) {
+		printf("\n\nPartition %s not found!", part_name);
+        return 1;
+	}
+	part_size_in_bytes = sfi->flash_block_size * size_block;
+
+    if (file_size_in_bytes > part_size_in_bytes) {
+        printf("\n\n* Error: image %s size (%lu bytes) > partition %s size (%lu bytes)! *",
+			   file_name, file_size_in_bytes, part_name, (ulong)part_size_in_bytes);
+        return 1;
+    }
+#endif
 
     return 0;
 }
@@ -322,6 +358,10 @@ int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_
 				case FW_TYPE_JDCLOUD:
 					break;
 #endif
+#if defined(MACHINE_FLASH_TYPE_NAND)
+				case FW_TYPE_UBI:
+					return (image_greater_than_partition("rootfs", "total", (size_t)file_size_in_bytes));
+#endif
 				default:
 					printf("\n\n* The upload file is NOT supported FIRMWARE!! *\n\n");
 					print_fw_type(fw_type);
@@ -342,11 +382,21 @@ int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_
 				case FW_TYPE_EMMC:
 					break;
 #endif
+#if defined(MACHINE_FLASH_TYPE_NAND)
+				case FW_TYPE_MIBIB_NAND: {
+					if (file_size_in_bytes > WEBFAILSAFE_UPLOAD_MIBIB_SIZE_IN_BYTES_NAND) {
+						printf("\n\n## Error: wrong file size, mibib should be less than or equal to: %d bytes!", WEBFAILSAFE_UPLOAD_MIBIB_SIZE_IN_BYTES_NAND);
+						return 1;
+					}
+					break;
+				}
+				case FW_TYPE_NAND:
+					break;
+#endif
 #if defined(MACHINE_FLASH_TYPE_NORPLUSEMMC)
-				case FW_TYPE_MIBIB: {
-					int mibib_size = WEBFAILSAFE_UPLOAD_MIBIB_SIZE_IN_BYTES_NOR;
-					if (file_size_in_bytes > mibib_size) {
-						printf("\n\n## Error: wrong file size, mibib should be less than or equal to: %d bytes!", mibib_size);
+				case FW_TYPE_MIBIB_NOR: {
+					if (file_size_in_bytes > WEBFAILSAFE_UPLOAD_MIBIB_SIZE_IN_BYTES_NOR) {
+						printf("\n\n## Error: wrong file size, mibib should be less than or equal to: %d bytes!", WEBFAILSAFE_UPLOAD_MIBIB_SIZE_IN_BYTES_NOR);
 						return 1;
 					}
 					break;

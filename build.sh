@@ -118,9 +118,19 @@ check_and_pad_file() {
         log_message "错误: 文件不存在: $file_path"
         return 1
     fi
-# nand 机型 1536 KB
+
     local current_size_bytes=$(stat -c%s "$file_path")
-    local target_size_bytes=655360  # 640 KB = 655360 Bytes
+    local target_size_bytes
+
+    case "$target_name" in
+        cmiot_ax18|qihoo_360v6|zn_m2)
+            # 针对 NAND 机型，将 U-Boot 填充至 1536 KB
+            target_size_bytes=1572864 # 1536 KB = 1572864 Bytes
+            ;;
+        *)
+            target_size_bytes=655360 # 640 KB = 655360 Bytes
+            ;;
+    esac
 
     log_message "文件检查: $target_name"
     log_message "文    件: $(basename "$file_path")"

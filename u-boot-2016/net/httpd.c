@@ -259,6 +259,20 @@ static int do_firmware_upgrade(const ulong size) {
 			}
 			break;
 #endif
+#if defined(MACHINE_FLASH_TYPE_NAND)
+		case SMEM_BOOT_NAND_FLASH:
+			if (fw_type == FW_TYPE_UBI) {
+				printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
+				sprintf(buf,
+					"flash rootfs 0x%lx 0x%lx && "
+					"bootconfig set primary",
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)size);
+			} else {
+				return (-1);
+			}
+			break;
+#endif
 		default:
 			printf("\n\n* Update FIRMWARE is NOT supported for this FLASH TYPE yet!! *\n\n");
 			return (-1);
@@ -275,6 +289,7 @@ static int do_uboot_upgrade(const ulong size) {
 
 	switch (flash_type) {
 		case SMEM_BOOT_MMC_FLASH:
+		case SMEM_BOOT_NAND_FLASH:
 		case SMEM_BOOT_NORPLUSEMMC:
 		case SMEM_BOOT_SPI_FLASH:
 			if (fw_type == FW_TYPE_ELF) {
@@ -303,6 +318,7 @@ static int do_art_upgrade(const ulong size) {
 
 	switch (flash_type) {
 		case SMEM_BOOT_MMC_FLASH:
+		case SMEM_BOOT_NAND_FLASH:
 		case SMEM_BOOT_NORPLUSEMMC:
 		case SMEM_BOOT_SPI_FLASH:
 			sprintf(buf,
@@ -326,6 +342,7 @@ static int do_cdt_upgrade(const ulong size) {
 
 	switch (flash_type) {
 		case SMEM_BOOT_MMC_FLASH:
+		case SMEM_BOOT_NAND_FLASH:
 		case SMEM_BOOT_NORPLUSEMMC:
 		case SMEM_BOOT_SPI_FLASH:
 			if (fw_type == FW_TYPE_CDT) {
@@ -375,7 +392,7 @@ static int do_img_upgrade(const ulong size) {
 					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
 					(ulong)((size - 1) / 512 + 1)
 				);
-			} else if (fw_type == FW_TYPE_MIBIB) {
+			} else if (fw_type == FW_TYPE_MIBIB_NOR) {
 				printf("\n\n****************************\n*      MIBIB UPGRADING     *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
 				sprintf(buf,
 					"sf probe 0 && sf update 0x%lx 0xc0000 0x%lx",
@@ -389,6 +406,27 @@ static int do_img_upgrade(const ulong size) {
 					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
 					(ulong)size
 				);
+			} else {
+				return (-1);
+			}
+			break;
+#endif
+#if defined(MACHINE_FLASH_TYPE_NAND)
+		case SMEM_BOOT_NAND_FLASH:
+			if (fw_type == FW_TYPE_NAND) {
+				printf("\n\n****************************\n*    NAND IMG UPGRADING    *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
+				sprintf(buf,
+					"nand erase 0x0 0x%lx && nand write 0x%lx 0x0 0x%lx",
+					(ulong)size,
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)size);
+			} else if (fw_type == FW_TYPE_MIBIB_NAND) {
+				printf("\n\n****************************\n*      MIBIB UPGRADING     *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
+				sprintf(buf,
+					"nand erase 0x180000 0x%lx && nand write 0x%lx 0x180000 0x%lx",
+					(ulong)size,
+					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
+					(ulong)size);
 			} else {
 				return (-1);
 			}
