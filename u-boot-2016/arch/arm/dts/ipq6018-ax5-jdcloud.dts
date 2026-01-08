@@ -17,7 +17,7 @@
 	model ="QCA, IPQ6018-CP03-C1";
 	compatible = "qca,ipq6018", "qca,ipq6018-cp03-c1";
 	machid = <0x8030200>;
-	config_name = "config@cp03-c1";
+	config_name = "config@cp03-c1", "config-cp03-c1";
 
 	aliases {
 		console = "/serial@78B1000";
@@ -29,7 +29,7 @@
 		system_led = "/tlmm-gpio/led_gpio/net_blue";
 		reset_key = "/tlmm-gpio/key_gpio/reset";
 	};
-	
+
 	ess-switch {
 		switch_mac_mode = <PORT_WRAPPER_PSGMII>;
 		switch_mac_mode1 = <UNUSED>;
@@ -60,7 +60,7 @@
 			};
 		};
 	};
-	
+
 	tlmm-gpio {
 		led_gpio {
 			net_blue {
@@ -96,7 +96,7 @@
 				oe = <GPIO_OE_ENABLE>;
 			};
 		};
-		
+
 		key_gpio {
 			reset {
 				gpio = <19>;
@@ -108,4 +108,3 @@
 		};
 	};
 };
-

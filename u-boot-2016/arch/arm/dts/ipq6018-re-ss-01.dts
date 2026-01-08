@@ -17,7 +17,7 @@
 	model ="QCA, IPQ6018-CP03-C2";
 	compatible = "qca,ipq6018", "qca,ipq6018-cp03-c2";
 	machid = <0x8030201>;
-	config_name = "config@cp03-c2";
+	config_name = "config@cp03-c2", "config-cp03-c2";
 
 	aliases {
 		console = "/serial@78B1000";

@@ -17,7 +17,7 @@
 	model ="QCA, IPQ6018-CP01-C1";
 	compatible = "qca,ipq6018", "qca,ipq6018-cp01-c1";
 	machid = <0x8030000>;
-	config_name = "config@cp01-c1";
+	config_name = "config@cp01-c1", "config-cp01-c1";
 
 	aliases {
 		console = "/serial@78B1000";
