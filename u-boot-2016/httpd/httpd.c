@@ -136,8 +136,8 @@ static int httpd_findandstore_firstchunk(void) {
 			printf("firmware\n");
 			webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE;
 		} else if ((char *)strstr((char *)start, "name=\"uboot\"")) {
-			webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_UBOOT;
 			printf("U-Boot\n");
+			webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_UBOOT;
 		} else if ((char *)strstr((char *)start, "name=\"art\"")) {
 			printf("ART\n");
 			webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_ART;
