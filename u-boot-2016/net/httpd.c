@@ -395,14 +395,14 @@ static int do_img_upgrade(const ulong size) {
 			} else if (fw_type == FW_TYPE_MIBIB_NOR) {
 				printf("\n\n****************************\n*      MIBIB UPGRADING     *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
 				sprintf(buf,
-					"sf probe 0 && sf update 0x%lx 0xc0000 0x%lx",
+					"sf probe && sf update 0x%lx 0xc0000 0x%lx",
 					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
 					(ulong)size
 				);
 			} else if (fw_type == FW_TYPE_NOR) {
 				printf("\n\n****************************\n*   SPI-NOR IMG UPGRADING  *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
 				sprintf(buf,
-					"sf probe 0 && sf update 0x%lx 0x0 0x%lx",
+					"sf probe && sf update 0x%lx 0x0 0x%lx",
 					(ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
 					(ulong)size
 				);
