@@ -1259,6 +1259,36 @@ void ipq_uboot_fdt_fixup(void)
 	init_config_list();
 	switch (gd->bd->bi_arch_number)
 	{
+#if defined(CONFIG_TARGET_IPQ6018_CMIOT_AX18)
+		case MACH_TYPE_IPQ6018_CMIOT_AX18:
+			add_config_entry("config@cp03-c1");
+			add_config_entry("config-cp03-c1");
+			break;
+#endif
+#if defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_02)
+		case MACH_TYPE_IPQ6018_JDCLOUD_RE_CS_02:
+			add_config_entry("config@cp03-c3");
+			add_config_entry("config-cp03-c3");
+			break;
+#endif
+#if defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_07)
+		case MACH_TYPE_IPQ6018_JDCLOUD_RE_CS_07:
+			add_config_entry("config@cp03-c4");
+			add_config_entry("config-cp03-c4");
+			break;
+#endif
+#if defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_SS_01)
+		case MACH_TYPE_IPQ6018_JDCLOUD_RE_SS_01:
+			add_config_entry("config@cp03-c2");
+			add_config_entry("config-cp03-c2");
+			break;
+#endif
+#if defined(CONFIG_TARGET_IPQ6018_LINK_NN6000)
+		case MACH_TYPE_IPQ6018_LINK_NN6000:
+			add_config_entry("config@cp03-c1");
+			add_config_entry("config-cp03-c1");
+			break;
+#endif
 #if defined(CONFIG_TARGET_IPQ6018_PHILIPS_LY1800) || \
 	defined(CONFIG_TARGET_IPQ6018_SY_Y6010)
 		case MACH_TYPE_IPQ6018_PHILIPS_LY1800:
@@ -1269,6 +1299,24 @@ void ipq_uboot_fdt_fixup(void)
 			add_config_entry("config-cp03-c1");
 			add_config_entry("config@cp03-c2");
 			add_config_entry("config-cp03-c2");
+			break;
+#endif
+#if defined(CONFIG_TARGET_IPQ6018_QIHOO_360V6)
+		case MACH_TYPE_IPQ6018_QIHOO_360V6:
+			add_config_entry("config@cp03-c1");
+			add_config_entry("config-cp03-c1");
+			break;
+#endif
+#if defined(CONFIG_TARGET_IPQ6018_REDMI_AX5_JDCLOUD)
+		case MACH_TYPE_IPQ6018_REDMI_AX5_JDCLOUD:
+			add_config_entry("config@cp03-c1");
+			add_config_entry("config-cp03-c1");
+			break;
+#endif
+#if defined(CONFIG_TARGET_IPQ6018_ZN_M2)
+		case MACH_TYPE_IPQ6018_ZN_M2:
+			add_config_entry("config@cp03-c1");
+			add_config_entry("config-cp03-c1");
 			break;
 #endif
 		default:
