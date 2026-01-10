@@ -248,7 +248,7 @@ compile_target_after_cache_clean() {
 
     if [ $MAKE_EXIT_STATUS -ne 0 ]; then
         log_message "错误: 编译失败!"
-        exit 1
+        return 1
     fi
 
     log_message "Strip elf"
