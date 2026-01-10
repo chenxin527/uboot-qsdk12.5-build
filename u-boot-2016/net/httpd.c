@@ -30,35 +30,37 @@ void HttpdStart(void) {
 	unsigned short int ip[2];
 	ulong tmp_ip_addr = ntohl(net_ip.s_addr);
 
-	printf("HTTP server is starting at IP: %ld.%ld.%ld.%ld\n",
-		(tmp_ip_addr & 0xff000000) >> 24,
-		(tmp_ip_addr & 0x00ff0000) >> 16,
-		(tmp_ip_addr & 0x0000ff00) >> 8,
-		(tmp_ip_addr & 0x000000ff));
+	printf("HTTP server is starting at IP: %lu.%lu.%lu.%lu\n",
+		(tmp_ip_addr & 0xFF000000) >> 24,
+		(tmp_ip_addr & 0x00FF0000) >> 16,
+		(tmp_ip_addr & 0x0000FF00) >> 8,
+		(tmp_ip_addr & 0x000000FF)
+	);
 
-	eaddr.addr[0] = net_ethaddr[0];
-	eaddr.addr[1] = net_ethaddr[1];
-	eaddr.addr[2] = net_ethaddr[2];
-	eaddr.addr[3] = net_ethaddr[3];
-	eaddr.addr[4] = net_ethaddr[4];
-	eaddr.addr[5] = net_ethaddr[5];
 	// set MAC address
+	memcpy(eaddr.addr, net_ethaddr, sizeof(net_ethaddr));
 	uip_setethaddr(eaddr);
 
 	uip_init();
 	httpd_init();
 
-	ip[0] =  htons((tmp_ip_addr & 0xFFFF0000) >> 16);
+	// set Host addr
+	ip[0] = htons((tmp_ip_addr & 0xFFFF0000) >> 16);
 	ip[1] = htons(tmp_ip_addr & 0x0000FFFF);
-
 	uip_sethostaddr(ip);
+	ip[0] = ntohs(uip_hostaddr[0]);
+	ip[1] = ntohs(uip_hostaddr[1]);
+	printf("Host addr is set to IP: %hu.%hu.%hu.%hu\n",
+		(ip[0] & 0xFF00) >> 8,
+		(ip[0] & 0x00FF),
+		(ip[1] & 0xFF00) >> 8,
+		(ip[1] & 0x00FF)
+	);
 
-	printf("done set host addr 0x%x 0x%x\n", uip_hostaddr[0], uip_hostaddr[1]);
 	// set network mask (255.255.255.0 -> local network)
+	net_netmask = string_to_ip("255.255.255.0");
 	ip[0] = htons((0xFFFFFF00 & 0xFFFF0000) >> 16);
 	ip[1] = htons(0xFFFFFF00 & 0x0000FFFF);
-
-	net_netmask.s_addr = 0x00FFFFFF;
 	uip_setnetmask(ip);
 
 	// should we also set default router ip address?
